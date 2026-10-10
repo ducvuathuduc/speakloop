@@ -76,11 +76,11 @@ A voice assistant with a screen is already in many homes. SpeakLoop turns it int
 
 <div align="center">
 
-<a href="https://github.com/ducvuathuduc/speakloop/releases/download/v0.1.0/speakloop-demo.mp4">
+<a href="assets/speakloop-demo.mp4">
   <img src="assets/video-poster.png" width="720" alt="Watch the SpeakLoop demo video (2 min 49 s, MP4)">
 </a>
 
-<sub>▶ <a href="https://github.com/ducvuathuduc/speakloop/releases/download/v0.1.0/speakloop-demo.mp4">Download / watch the narrated demo (MP4, 2:49, 4.9 MB)</a>, attached to the <a href="https://github.com/ducvuathuduc/speakloop/releases/tag/v0.1.0">v0.1.0 release</a>.</sub>
+<sub>▶ <a href="assets/speakloop-demo.mp4">Watch the narrated demo (MP4, 2:49, 4.9 MB)</a>. GitHub plays it in the browser.</sub>
 
 </div>
 
@@ -406,7 +406,7 @@ speakloop/
 ├── tests/                  # pytest: unit + Streamable HTTP end to end
 ├── scripts/                # seed_demo.py, demo_capture.py, bedrock_smoke.py
 ├── docs/                   # ARCHITECTURE, AWS, FRICTION_LOG, PRODUCT_FEEDBACK, FEATURE_REQUESTS, img/
-└── assets/                 # logo, GIFs, social preview
+└── assets/                 # logo, GIFs, demo video, social preview
 ```
 
 ## 🔗 Related project: mcp-lite-browser

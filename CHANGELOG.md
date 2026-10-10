@@ -23,6 +23,7 @@ First public release, built for the Alexa+ track of *Build, Ship, Shape: Amazon 
 - Planners: offline rules (default), **Amazon Bedrock Converse** with tool use (bearer API key or AWS credential
   chain), OpenAI-compatible; verbatim-transcript guardrail and throttle circuit breaker.
 - iCalendar practice routine (`/calendar/{learner_id}.ics`).
+- Narrated demo video (`assets/speakloop-demo.mp4`, 2:49) and README GIFs.
 - 33 pytest tests including a real Streamable HTTP round trip and the official SDK client; GitHub Actions CI on
   Python 3.11, 3.12 and 3.13.
 - Docs: architecture, AWS setup, friction log, product feedback, feature requests; contributing guide, code of
