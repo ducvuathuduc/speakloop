@@ -435,7 +435,7 @@ Release history: [CHANGELOG.md](CHANGELOG.md).
 - [Model Context Protocol](https://modelcontextprotocol.io) and its [official Python SDK](https://github.com/modelcontextprotocol/python-sdk)
 - The MCP Apps extension (SEP-1865) and the [Agent Skills](https://agentskills.io) format
 - [Amazon Bedrock](https://aws.amazon.com/bedrock/) Converse API and Amazon Nova models
-- [Starlette](https://www.starlette.io), [Uvicorn](https://www.uvicorn.org), [Pydantic](https://docs.pydantic.dev), [HTTPX](https://www.python-httpx.org)
+- [Starlette](https://github.com/Kludex/starlette), [Uvicorn](https://github.com/Kludex/uvicorn), [Pydantic](https://docs.pydantic.dev), [HTTPX](https://www.python-httpx.org)
 - [Contributor Covenant](https://www.contributor-covenant.org) for the Code of Conduct
 - Built for *Build, Ship, Shape: Amazon Developer Hackathon 2026* (Alexa+ track)
 
