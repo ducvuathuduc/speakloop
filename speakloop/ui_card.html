@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpeakLoop card</title>
+<style>
+  :root { --bg:#0b1220; --panel:#121b2e; --ink:#e8eefc; --muted:#8fa1c7; --accent:#3fd0ff; --good:#3ddc97; --warn:#ffb547; --bad:#ff6b6b; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background:transparent; color:var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .card { background:var(--panel); border-radius:18px; padding:18px 20px; }
+  .eyebrow { color:var(--accent); font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; }
+  h2 { margin:4px 0 10px; font-size:20px; }
+  .passage { font-size:19px; line-height:1.6; background:#0e1628; padding:14px 16px; border-radius:12px; }
+  .muted { color:var(--muted); font-size:13px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .pill { background:#1b2742; border-radius:999px; padding:3px 10px; font-size:12px; color:var(--muted); }
+  .scores { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:10px 0; }
+  .score { background:#0e1628; border-radius:12px; padding:10px; text-align:center; }
+  .score b { display:block; font-size:24px; }
+  .score span { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+  .w-ok { color:var(--good); } .w-miss { color:var(--bad); text-decoration:line-through; } .w-sub { color:var(--warn); }
+  .tip { border-left:3px solid var(--accent); padding:6px 10px; margin:8px 0; background:#0e1628; border-radius:0 10px 10px 0; }
+  .tip .vi { color:var(--muted); font-size:13px; }
+  ol { padding-left:20px; margin:6px 0; } li { margin:4px 0; }
+  button { background:var(--accent); color:#04121c; border:0; border-radius:999px; padding:8px 16px; font-weight:700; cursor:pointer; margin-top:10px; }
+  button.ghost { background:#1b2742; color:var(--ink); }
+  svg text { fill: var(--muted); font-size: 11px; }
+  .timer { font-variant-numeric: tabular-nums; color:var(--accent); font-weight:700; }
+</style>
+</head>
+<body>
+<div id="root" class="card"><div class="muted">Loading…</div></div>
+<script>
+(() => {
+  // Minimal MCP Apps (SEP-1865) view: ui/initialize handshake over postMessage,
+  // then render ui/notifications/tool-result. Buttons call server tools via the host.
+  let nextId = 1; const pending = new Map();
+  const send = (msg) => window.parent.postMessage(msg, "*");
+  const request = (method, params) => new Promise((resolve, reject) => {
+    const id = nextId++; pending.set(id, { resolve, reject });
+    send({ jsonrpc: "2.0", id, method, params });
+  });
+  const notify = (method, params) => send({ jsonrpc: "2.0", method, params });
+  const root = document.getElementById("root");
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+  function barChart(chart) {
+    if (!chart) return "";
+    const W = 420, H = 170, pad = 26, n = chart.values.length, max = Math.max(...chart.values);
+    const bw = (W - pad * 2) / n * 0.62, step = (W - pad * 2) / n;
+    let bars = "";
+    chart.values.forEach((v, i) => {
+      const h = (H - 50) * v / max, x = pad + i * step + (step - bw) / 2, y = H - 24 - h;
+      bars += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="#3fd0ff" opacity="${0.45 + 0.55 * v / max}"></rect>`;
+      bars += `<text x="${x + bw / 2}" y="${y - 4}" text-anchor="middle">${v}</text>`;
+      bars += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${esc(chart.labels[i])}</text>`;
+    });
+    return `<div class="muted">${esc(chart.title)}</div><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:190px" role="img" aria-label="${esc(chart.title)}">${bars}</svg>`;
+  }
+
+  function lineChart(series) {
+    if (!series || series.length === 0) return `<div class="muted">No practice yet in this window.</div>`;
+    const W = 420, H = 140, pad = 24;
+    const xs = (i) => pad + (series.length === 1 ? (W - 2 * pad) / 2 : i * (W - 2 * pad) / (series.length - 1));
+    const ys = (v) => H - 22 - (H - 44) * (v - 10) / 80;
+    const pts = series.map((p, i) => `${xs(i)},${ys(p.average)}`).join(" ");
+    const dots = series.map((p, i) => `<circle cx="${xs(i)}" cy="${ys(p.average)}" r="4" fill="#3fd0ff"></circle><text x="${xs(i)}" y="${ys(p.average) - 8}" text-anchor="middle">${p.average}</text><text x="${xs(i)}" y="${H - 6}" text-anchor="middle">${esc(p.day.slice(5))}</text>`).join("");
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:150px"><polyline points="${pts}" fill="none" stroke="#3fd0ff" stroke-width="2.5"></polyline>${dots}</svg>`;
+  }
+
+  function wordDiff(score, reference) {
+    const issues = new Map((score.issues || []).map((i) => [i.expected, i]));
+    return reference.split(/\s+/).map((raw) => {
+      const w = raw.toLowerCase().replace(/[^a-z0-9']/g, "");
+      const iss = issues.get(w);
+      if (!iss) return `<span class="w-ok">${esc(raw)}</span>`;
+      if (iss.heard && iss.feature) return `<span class="w-sub" title="heard: ${esc(iss.heard)}">${esc(raw)}</span>`;
+      return `<span class="w-miss">${esc(raw)}</span>`;
+    }).join(" ");
+  }
+
+  let timerHandle = null;
+  function render(sc) {
+    clearInterval(timerHandle);
+    const k = sc.kind;
+    if (k === "drill") {
+      const d = sc;
+      root.innerHTML = `
+        <div class="eyebrow">${esc(d.task_label)}</div>
+        <h2>${esc(d.prompt)}</h2>
+        ${d.display_text ? `<div class="passage">${esc(d.display_text)}</div>` : ""}
+        ${d.task_type === "repeat_sentence" ? `<div class="passage">🔊 Listen… then repeat what you heard.</div>` : ""}
+        ${d.task_type === "answer_short_question" ? `<div class="passage">🔊 ${esc(d.prompt)}</div>` : ""}
+        ${barChart(d.chart)}
+        <div class="row" style="margin-top:10px">
+          <span class="pill">⏱ <span class="timer" id="t">${d.time_limit_seconds}</span>s</span>
+          ${(d.features || []).map((f) => `<span class="pill">${esc(f)}</span>`).join("")}
+        </div>`;
+      let left = d.time_limit_seconds; const t = document.getElementById("t");
+      timerHandle = setInterval(() => { left = Math.max(0, left - 1); if (t) t.textContent = left; if (!left) clearInterval(timerHandle); }, 1000);
+    } else if (k === "result") {
+      const s = sc.score;
+      const asq = sc.task_type === "answer_short_question";
+      root.innerHTML = `
+        <div class="eyebrow">${esc(sc.task_label)} · result</div>
+        <div class="scores">
+          <div class="score"><b>${s.overall}</b><span>Overall</span></div>
+          <div class="score"><b>${s.content}</b><span>Content</span></div>
+          <div class="score"><b>${s.fluency}</b><span>Fluency</span></div>
+          <div class="score"><b>${s.pronunciation}</b><span>Pronun.</span></div>
+        </div>
+        ${asq ? `<div class="passage">${s.correct ? "✅" : "❌"} You said “${esc(sc.transcript)}”. Answer: <b>${esc(sc.reference)}</b></div>`
+              : sc.task_type === "describe_image"
+                ? `<div class="passage">Key points covered: ${(s.covered_keywords||[]).map(esc).join(", ") || "none"}<br><span class="muted">Missed: ${(s.missed_keywords||[]).map(esc).join(", ") || "none"}</span></div>`
+                : `<div class="passage">${wordDiff(s, sc.reference)}</div>`}
+        <div class="muted">${s.words_per_minute ? `${s.words_per_minute} words/min · ` : ""}${s.fillers} filler(s) · ${s.restarts} restart(s) · streak ${sc.streak_days} day(s)</div>
+        ${(sc.tips || []).map((t) => `<div class="tip"><b>${esc(t.label)}</b> — ${esc(t.en)}<div class="vi"><b>VI</b> · ${esc(t.vi)}</div></div>`).join("")}
+        <button id="next">Next drill</button> <button class="ghost" id="prog">My progress</button>`;
+      document.getElementById("next").onclick = () => callTool("start_drill", { learner_id: sc.learner_id });
+      document.getElementById("prog").onclick = () => callTool("progress_report", { learner_id: sc.learner_id });
+    } else if (k === "plan") {
+      root.innerHTML = `
+        <div class="eyebrow">Today's ${sc.minutes}-minute plan</div>
+        <h2>${sc.focus_feature ? `Focus: ${esc(sc.focus_label)}` : "Balanced practice"}</h2>
+        <ol>${sc.steps.map((s) => `<li><b>${esc(s.label)}</b> · ${s.minutes} min <span class="muted">— ${esc(s.why)}</span></li>`).join("")}</ol>
+        <div class="muted">${esc(sc.intensity)}${sc.profile.days_until_exam != null ? ` · ${sc.profile.days_until_exam} day(s) to exam` : ""}</div>
+        <button id="go">Start step 1</button>`;
+      document.getElementById("go").onclick = () => {
+        const s = sc.steps[0];
+        if (s.tool === "start_sound_review") callTool("start_sound_review", { learner_id: sc.learner_id });
+        else callTool("start_drill", { learner_id: sc.learner_id, task_type: s.task_type, focus: s.focus || undefined });
+      };
+    } else if (k === "progress") {
+      const p = sc.profile;
+      root.innerHTML = `
+        <div class="eyebrow">Progress · ${esc(p.name)}</div>
+        <div class="scores">
+          <div class="score"><b>${p.estimated_score ?? "–"}</b><span>Estimate</span></div>
+          <div class="score"><b>${p.target_score ?? "–"}</b><span>Target</span></div>
+          <div class="score"><b>${p.streak_days}</b><span>Streak</span></div>
+          <div class="score"><b>${p.days_until_exam ?? "–"}</b><span>Days left</span></div>
+        </div>
+        ${lineChart(sc.daily)}
+        <div class="row">${(p.weak_features || []).map((w) => `<span class="pill">${esc(w.label)} ×${w.count}</span>`).join("") || `<span class="muted">No weak spots recorded yet.</span>`}</div>
+        <div class="muted" style="margin-top:6px">Practice estimate on a 10–90 scale, not an official score.</div>`;
+    } else if (k === "review") {
+      if (!sc.drill_id) { root.innerHTML = `<div class="eyebrow">Sound review</div><h2>${esc(sc.message)}</h2>`; return; }
+      root.innerHTML = `
+        <div class="eyebrow">Sound review · spaced repetition</div>
+        <h2>${esc(sc.prompt)}</h2>
+        <div class="passage">${esc(sc.display_text)}</div>
+        ${sc.items.map((i) => `<div class="tip"><b>${esc(i.word)}</b> <span class="muted">(${esc(i.feature)}, missed ${i.lapses}×)</span> — ${esc(i.tip || "")}</div>`).join("")}`;
+    } else if (k === "routine") {
+      root.innerHTML = `<div class="eyebrow">Daily routine</div><h2>${esc(sc.time_local)} · ${esc(sc.days.replace(/,/g, " "))}</h2>
+        <div class="muted">${sc.minutes}-minute session with a 5-minute heads-up alarm.</div>
+        <button id="ics">Add to calendar (.ics)</button>`;
+      document.getElementById("ics").onclick = () => request("ui/open-link", { url: sc.calendar_url });
+    } else if (k === "profile") {
+      root.innerHTML = `<div class="eyebrow">Learner</div><h2>${esc(sc.name)}</h2>
+        <div class="muted">Target ${sc.target_score ?? "not set"} · exam ${esc(sc.exam_date ?? "not set")} · ${sc.total_attempts} attempt(s)</div>`;
+    } else {
+      root.innerHTML = `<pre class="muted">${esc(JSON.stringify(sc, null, 2))}</pre>`;
+    }
+    notify("ui/notifications/size-changed", { height: document.documentElement.scrollHeight });
+  }
+
+  async function callTool(name, args) {
+    root.style.opacity = 0.6;
+    try {
+      const result = await request("tools/call", { name, arguments: args });
+      if (result && result.structuredContent) render(result.structuredContent);
+    } finally { root.style.opacity = 1; }
+  }
+
+  window.addEventListener("message", (ev) => {
+    const m = ev.data; if (!m || m.jsonrpc !== "2.0") return;
+    if (m.id != null && pending.has(m.id) && !m.method) {
+      const p = pending.get(m.id); pending.delete(m.id);
+      m.error ? p.reject(m.error) : p.resolve(m.result); return;
+    }
+    if (m.method === "ui/notifications/tool-result" && m.params) {
+      if (m.params.structuredContent) render(m.params.structuredContent);
+    }
+  });
+
+  request("ui/initialize", {
+    protocolVersion: "2026-01-26",
+    appInfo: { name: "speakloop-card", version: "1.0.0" },
+    appCapabilities: { availableDisplayModes: ["inline"] },
+  }).then(() => notify("ui/notifications/initialized", {}));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpeakLoop · Alexa+ experience simulator</title>
+<link rel="stylesheet" href="/web/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">◉</span> SpeakLoop <span class="sub">Alexa+ experience simulator · MCP 2025-11-25 over Streamable HTTP</span></div>
+  <div class="status" id="status">connecting…</div>
+</header>
+
+<main class="layout">
+  <section class="device" aria-label="Simulated smart display">
+    <div class="screen">
+      <div class="lightbar" id="lightbar"></div>
+      <div class="conversation" id="conversation"></div>
+      <div class="card-slot">
+        <iframe id="card" title="MCP App card" class="card-frame"></iframe>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="mic" class="mic" title="Tap to talk (Chrome/Edge speech recognition)" aria-label="Tap to talk"><svg width="22" height="22" viewBox="0 0 24 24" fill="#04121c"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></button>
+      <form id="say-form" class="say-form">
+        <input id="say" autocomplete="off" placeholder="Type what you'd say… e.g. “let's practise for 10 minutes”">
+        <button type="submit">Say</button>
+      </form>
+    </div>
+    <div class="quick" id="quick">
+      <span class="muted">Try:</span>
+      <button data-say="Hi">Hi</button>
+      <button data-say="My exam is on December 15 and I need a score of 65">Set goal</button>
+      <button data-say="Let's practise for 10 minutes">Practise 10 min</button>
+      <button data-say="Yes">Yes / next</button>
+      <button data-say="Review my words">Review words</button>
+      <button data-say="How am I doing?">How am I doing?</button>
+      <button data-say="Remind me every day at 8:30 pm">Daily reminder</button>
+    </div>
+    <div class="learner">
+      Learner <input id="learner" value="lan" size="10"> · voice <select id="voice"></select>
+      · <label><input type="checkbox" id="tts" checked> speak replies</label>
+    </div>
+  </section>
+
+  <aside class="inspector" aria-label="MCP inspector">
+    <div class="tabs">
+      <button class="tab active" data-tab="traffic">MCP traffic</button>
+      <button class="tab" data-tab="tools">Tools</button>
+      <button class="tab" data-tab="skill">Agent Skill</button>
+    </div>
+    <div class="pane active" id="pane-traffic"><ol id="traffic"></ol></div>
+    <div class="pane" id="pane-tools"><div id="tools"></div></div>
+    <div class="pane" id="pane-skill"><pre id="skill"></pre></div>
+    <div class="planner muted" id="planner"></div>
+  </aside>
+</main>
+<script type="module" src="/web/app.js"></script>
+</body>
+</html>
