@@ -47,7 +47,7 @@ mcp = MCPServer(
         "(resource skill://speakloop-coach/SKILL.md) for the session flow. Every tool result has a "
         "'speech' field meant to be spoken aloud and renders into the ui://speakloop/card.html MCP App."
     ),
-    version="1.0.0",
+    version="0.1.0",
 )
 
 LearnerId = Annotated[str, Field(description="Stable id of the learner (e.g. the household profile id).")]

@@ -1,0 +1,55 @@
+name: 🐛 Bug report
+description: Something does not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please search [existing issues](https://github.com/ducvuathuduc/speakloop/issues) first, and never paste API keys or tokens.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SpeakLoop version / commit
+      placeholder: "v0.1.0 or a commit SHA"
+    validations:
+      required: true
+  - type: dropdown
+    id: planner
+    attributes:
+      label: Planner
+      options: ["rules (default, offline)", "bedrock", "openai-compatible", "MCP client only (no planner)"]
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "OS, Python version, browser (for the simulator)"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or MCP traffic
+      description: Relevant output. It is formatted as code automatically.
+      render: shell

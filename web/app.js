@@ -30,11 +30,11 @@ function logTraffic(dir, msg) {
   ui.traffic.parentElement.scrollTop = ui.traffic.parentElement.scrollHeight;
 }
 
-const client = new McpHttpClient("/mcp", { protocolVersion: "2025-11-25", clientInfo: { name: "speakloop-alexa-sim", version: "1.0.0" }, onTraffic: logTraffic });
+const client = new McpHttpClient("/mcp", { protocolVersion: "2025-11-25", clientInfo: { name: "speakloop-alexa-sim", version: "0.1.0" }, onTraffic: logTraffic });
 
 const bridge = new AppBridge(ui.card, {
   client,
-  hostInfo: { name: "speakloop-alexa-sim", version: "1.0.0" },
+  hostInfo: { name: "speakloop-alexa-sim", version: "0.1.0" },
   onSize: (h) => { if (h) ui.card.style.height = Math.min(Math.max(h + 8, 160), 900) + "px"; },
   onToolResult: (name, args, result) => {
     // A button inside the MCP App called a tool: keep the agent's context in sync and speak the outcome.
