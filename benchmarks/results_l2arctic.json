@@ -1,0 +1,1040 @@
+{
+  "n_dev_phones": 1966,
+  "n_test_phones": 10067,
+  "dev_utts": 60,
+  "test_utts": 300,
+  "systems": {
+    "GOP, single pass (ac378c6)": {
+      "threshold": 2.5,
+      "dev": {
+        "precision": 0.408,
+        "recall": 0.667,
+        "f1": 0.506,
+        "tp": 254,
+        "fp": 369,
+        "fn": 127,
+        "n": 1966,
+        "positives": 381
+      },
+      "test": {
+        "precision": 0.463,
+        "recall": 0.706,
+        "f1": 0.56,
+        "tp": 1807,
+        "fp": 2093,
+        "fn": 751,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_ap": 0.625,
+      "high_precision": {
+        "threshold": -4.75,
+        "dev": {
+          "precision": 0.709,
+          "recall": 0.192,
+          "f1": 0.302,
+          "tp": 73,
+          "fp": 30,
+          "fn": 308,
+          "n": 1966,
+          "positives": 381
+        },
+        "test": {
+          "precision": 0.805,
+          "recall": 0.277,
+          "f1": 0.412,
+          "tp": 708,
+          "fp": 172,
+          "fn": 1850,
+          "n": 10067,
+          "positives": 2558
+        }
+      },
+      "test_subset": {
+        "precision": 0.436,
+        "recall": 0.635,
+        "f1": 0.517,
+        "tp": 504,
+        "fp": 651,
+        "fn": 290,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "GOP + context pass": {
+      "threshold": 2.5,
+      "dev": {
+        "precision": 0.411,
+        "recall": 0.669,
+        "f1": 0.509,
+        "tp": 255,
+        "fp": 365,
+        "fn": 126,
+        "n": 1966,
+        "positives": 381
+      },
+      "test": {
+        "precision": 0.463,
+        "recall": 0.703,
+        "f1": 0.558,
+        "tp": 1799,
+        "fp": 2089,
+        "fn": 759,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_ap": 0.625,
+      "high_precision": {
+        "threshold": -4.75,
+        "dev": {
+          "precision": 0.708,
+          "recall": 0.197,
+          "f1": 0.308,
+          "tp": 75,
+          "fp": 31,
+          "fn": 306,
+          "n": 1966,
+          "positives": 381
+        },
+        "test": {
+          "precision": 0.803,
+          "recall": 0.281,
+          "f1": 0.417,
+          "tp": 720,
+          "fp": 177,
+          "fn": 1838,
+          "n": 10067,
+          "positives": 2558
+        }
+      },
+      "test_subset": {
+        "precision": 0.436,
+        "recall": 0.632,
+        "f1": 0.516,
+        "tp": 502,
+        "fp": 650,
+        "fn": 292,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "SpeakLoop (context pass + weak forms)": {
+      "threshold": 2.5,
+      "dev": {
+        "precision": 0.418,
+        "recall": 0.669,
+        "f1": 0.515,
+        "tp": 255,
+        "fp": 355,
+        "fn": 126,
+        "n": 1966,
+        "positives": 381
+      },
+      "test": {
+        "precision": 0.464,
+        "recall": 0.696,
+        "f1": 0.557,
+        "tp": 1781,
+        "fp": 2059,
+        "fn": 777,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_ap": 0.625,
+      "high_precision": {
+        "threshold": -4.25,
+        "dev": {
+          "precision": 0.707,
+          "recall": 0.215,
+          "f1": 0.33,
+          "tp": 82,
+          "fp": 34,
+          "fn": 299,
+          "n": 1966,
+          "positives": 381
+        },
+        "test": {
+          "precision": 0.78,
+          "recall": 0.313,
+          "f1": 0.446,
+          "tp": 800,
+          "fp": 226,
+          "fn": 1758,
+          "n": 10067,
+          "positives": 2558
+        }
+      },
+      "test_subset": {
+        "precision": 0.441,
+        "recall": 0.631,
+        "f1": 0.519,
+        "tp": 501,
+        "fp": 635,
+        "fn": 293,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "+ per-phone thr., unconstrained (around dev-F1 global)": {
+      "threshold": {
+        "global": 2.5,
+        "Z": 3.5,
+        "ER": 4.25,
+        "DH": 6.25,
+        "AH": 0.25,
+        "D": 4.25,
+        "L": 3.0,
+        "IH": -5.5,
+        "R": 0.25
+      },
+      "dev": {
+        "precision": 0.46,
+        "recall": 0.782,
+        "f1": 0.579,
+        "tp": 298,
+        "fp": 350,
+        "fn": 83,
+        "n": 1966,
+        "positives": 381
+      },
+      "test": {
+        "precision": 0.494,
+        "recall": 0.778,
+        "f1": 0.604,
+        "tp": 1989,
+        "fp": 2040,
+        "fn": 569,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_false_alarm_on_correct_by_phone": {
+        "Z": 0.416,
+        "ER": 0.939,
+        "DH": 0.859,
+        "AH": 0.153,
+        "D": 0.45,
+        "L": 0.128,
+        "IH": 0.019,
+        "R": 0.177
+      },
+      "test_subset": {
+        "precision": 0.484,
+        "recall": 0.736,
+        "f1": 0.584,
+        "tp": 584,
+        "fp": 622,
+        "fn": 210,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "0.0 + per-phone thr., unconstrained (L1 prior)": {
+      "threshold": {
+        "global": 0.0,
+        "Z": 3.5,
+        "ER": 4.75,
+        "DH": 6.25,
+        "AH": 0.25,
+        "D": 4.25,
+        "L": 3.0,
+        "IH": -5.5,
+        "R": 0.25
+      },
+      "dev": {
+        "precision": 0.591,
+        "recall": 0.698,
+        "f1": 0.64,
+        "tp": 266,
+        "fp": 184,
+        "fn": 115,
+        "n": 1966,
+        "positives": 381
+      },
+      "test": {
+        "precision": 0.605,
+        "recall": 0.705,
+        "f1": 0.651,
+        "tp": 1803,
+        "fp": 1177,
+        "fn": 755,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_false_alarm_on_correct_by_phone": {
+        "Z": 0.416,
+        "ER": 0.97,
+        "DH": 0.859,
+        "AH": 0.153,
+        "D": 0.45,
+        "L": 0.128,
+        "IH": 0.019,
+        "R": 0.177
+      },
+      "test_subset": {
+        "precision": 0.606,
+        "recall": 0.681,
+        "f1": 0.641,
+        "tp": 541,
+        "fp": 352,
+        "fn": 253,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "SpeakLoop default (0.0 + per-phone, FA<=15% on dev)": {
+      "threshold": {
+        "global": 0.0,
+        "Z": 2.75,
+        "ER": 1.75,
+        "DH": 2.75,
+        "AH": 0.25,
+        "D": 2.5,
+        "L": 3.0,
+        "IH": -5.5,
+        "R": 0.25
+      },
+      "dev": {
+        "precision": 0.593,
+        "recall": 0.554,
+        "f1": 0.573,
+        "tp": 211,
+        "fp": 145,
+        "fn": 170,
+        "n": 1966,
+        "positives": 381
+      },
+      "test": {
+        "precision": 0.611,
+        "recall": 0.59,
+        "f1": 0.6,
+        "tp": 1509,
+        "fp": 961,
+        "fn": 1049,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_false_alarm_on_correct_by_phone": {
+        "Z": 0.247,
+        "ER": 0.182,
+        "DH": 0.059,
+        "AH": 0.153,
+        "D": 0.236,
+        "L": 0.128,
+        "IH": 0.019,
+        "R": 0.177
+      },
+      "test_subset": {
+        "precision": 0.589,
+        "recall": 0.533,
+        "f1": 0.56,
+        "tp": 423,
+        "fp": 295,
+        "fn": 371,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "SpeakLoop weak forms, global 0.0 only": {
+      "threshold": 0.0,
+      "test": {
+        "precision": 0.6,
+        "recall": 0.534,
+        "f1": 0.565,
+        "tp": 1365,
+        "fp": 910,
+        "fn": 1193,
+        "n": 10067,
+        "positives": 2558
+      },
+      "test_subset": {
+        "precision": 0.575,
+        "recall": 0.479,
+        "f1": 0.522,
+        "tp": 380,
+        "fp": 281,
+        "fn": 414,
+        "n": 3200,
+        "positives": 794
+      }
+    },
+    "Whisper-small transcript diff": {
+      "threshold": null,
+      "test_subset": {
+        "precision": 0.615,
+        "recall": 0.219,
+        "f1": 0.323,
+        "tp": 174,
+        "fp": 109,
+        "fn": 620,
+        "n": 3200,
+        "positives": 794
+      }
+    }
+  },
+  "subset_utts": 100,
+  "subset_phones": 3200,
+  "categories": {
+    "GOP, single pass (ac378c6)": {
+      "all deletions": {
+        "recall": 0.932,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.531,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.146,
+        "n_specific": 82,
+        "group_precision": 0.938,
+        "group_recall": 0.174,
+        "group_f1": 0.294,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.842,
+        "n_specific": 38,
+        "group_precision": 0.648,
+        "group_recall": 0.747,
+        "group_f1": 0.694,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 0.953,
+        "n_specific": 43,
+        "group_precision": 0.9,
+        "group_recall": 0.607,
+        "group_f1": 0.725,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.279,
+        "n_specific": 43,
+        "group_precision": 0.948,
+        "group_recall": 0.611,
+        "group_f1": 0.743,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 0.409,
+        "n_specific": 44,
+        "group_precision": 0.647,
+        "group_recall": 0.458,
+        "group_f1": 0.537,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.261,
+        "n_specific": 46,
+        "group_precision": 0.438,
+        "group_recall": 0.382,
+        "group_f1": 0.408,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 1.0,
+        "n_specific": 40,
+        "group_precision": 0.667,
+        "group_recall": 1.0,
+        "group_f1": 0.8,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.833,
+        "n_specific": 54,
+        "group_precision": 0.882,
+        "group_recall": 0.833,
+        "group_f1": 0.857,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.305,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.271,
+        "n": 2406
+      }
+    },
+    "GOP + context pass": {
+      "all deletions": {
+        "recall": 0.927,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.53,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.134,
+        "n_specific": 82,
+        "group_precision": 0.933,
+        "group_recall": 0.163,
+        "group_f1": 0.277,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.816,
+        "n_specific": 38,
+        "group_precision": 0.644,
+        "group_recall": 0.734,
+        "group_f1": 0.686,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 0.953,
+        "n_specific": 43,
+        "group_precision": 0.9,
+        "group_recall": 0.607,
+        "group_f1": 0.725,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.279,
+        "n_specific": 43,
+        "group_precision": 0.948,
+        "group_recall": 0.611,
+        "group_f1": 0.743,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 0.409,
+        "n_specific": 44,
+        "group_precision": 0.647,
+        "group_recall": 0.458,
+        "group_f1": 0.537,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.261,
+        "n_specific": 46,
+        "group_precision": 0.438,
+        "group_recall": 0.382,
+        "group_f1": 0.408,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 1.0,
+        "n_specific": 40,
+        "group_precision": 0.667,
+        "group_recall": 1.0,
+        "group_f1": 0.8,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.833,
+        "n_specific": 54,
+        "group_precision": 0.882,
+        "group_recall": 0.833,
+        "group_f1": 0.857,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.305,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.27,
+        "n": 2406
+      }
+    },
+    "SpeakLoop (context pass + weak forms)": {
+      "all deletions": {
+        "recall": 0.927,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.528,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.122,
+        "n_specific": 82,
+        "group_precision": 0.929,
+        "group_recall": 0.151,
+        "group_f1": 0.26,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.816,
+        "n_specific": 38,
+        "group_precision": 0.674,
+        "group_recall": 0.734,
+        "group_f1": 0.703,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 0.953,
+        "n_specific": 43,
+        "group_precision": 0.9,
+        "group_recall": 0.607,
+        "group_f1": 0.725,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.279,
+        "n_specific": 43,
+        "group_precision": 0.948,
+        "group_recall": 0.611,
+        "group_f1": 0.743,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 0.409,
+        "n_specific": 44,
+        "group_precision": 0.647,
+        "group_recall": 0.458,
+        "group_f1": 0.537,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.261,
+        "n_specific": 46,
+        "group_precision": 0.438,
+        "group_recall": 0.382,
+        "group_f1": 0.408,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 1.0,
+        "n_specific": 40,
+        "group_precision": 0.667,
+        "group_recall": 1.0,
+        "group_f1": 0.8,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.833,
+        "n_specific": 54,
+        "group_precision": 0.882,
+        "group_recall": 0.833,
+        "group_f1": 0.857,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.22,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.264,
+        "n": 2406
+      }
+    },
+    "+ per-phone thr., unconstrained (around dev-F1 global)": {
+      "all deletions": {
+        "recall": 0.912,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.674,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.927,
+        "n_specific": 82,
+        "group_precision": 0.941,
+        "group_recall": 0.93,
+        "group_f1": 0.936,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.868,
+        "n_specific": 38,
+        "group_precision": 0.62,
+        "group_recall": 0.785,
+        "group_f1": 0.693,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 1.0,
+        "n_specific": 43,
+        "group_precision": 0.87,
+        "group_recall": 0.753,
+        "group_f1": 0.807,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.535,
+        "n_specific": 43,
+        "group_precision": 0.885,
+        "group_recall": 0.767,
+        "group_f1": 0.821,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 1.0,
+        "n_specific": 44,
+        "group_precision": 0.623,
+        "group_recall": 1.0,
+        "group_f1": 0.768,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.0,
+        "n_specific": 46,
+        "group_precision": 0.667,
+        "group_recall": 0.109,
+        "group_f1": 0.188,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 0.9,
+        "n_specific": 40,
+        "group_precision": 0.692,
+        "group_recall": 0.9,
+        "group_f1": 0.783,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.889,
+        "n_specific": 54,
+        "group_precision": 0.842,
+        "group_recall": 0.889,
+        "group_f1": 0.865,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.213,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.259,
+        "n": 2406
+      }
+    },
+    "0.0 + per-phone thr., unconstrained (L1 prior)": {
+      "all deletions": {
+        "recall": 0.888,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.61,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.927,
+        "n_specific": 82,
+        "group_precision": 0.941,
+        "group_recall": 0.93,
+        "group_f1": 0.936,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.816,
+        "n_specific": 38,
+        "group_precision": 0.682,
+        "group_recall": 0.759,
+        "group_f1": 0.719,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 1.0,
+        "n_specific": 43,
+        "group_precision": 0.89,
+        "group_recall": 0.73,
+        "group_f1": 0.802,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.535,
+        "n_specific": 43,
+        "group_precision": 0.885,
+        "group_recall": 0.767,
+        "group_f1": 0.821,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 1.0,
+        "n_specific": 44,
+        "group_precision": 0.6,
+        "group_recall": 1.0,
+        "group_f1": 0.75,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.0,
+        "n_specific": 46,
+        "group_precision": 0.667,
+        "group_recall": 0.109,
+        "group_f1": 0.188,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 0.9,
+        "n_specific": 40,
+        "group_precision": 0.692,
+        "group_recall": 0.9,
+        "group_f1": 0.783,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.889,
+        "n_specific": 54,
+        "group_precision": 0.842,
+        "group_recall": 0.889,
+        "group_f1": 0.865,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.11,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.146,
+        "n": 2406
+      }
+    },
+    "SpeakLoop default (0.0 + per-phone, FA<=15% on dev)": {
+      "all deletions": {
+        "recall": 0.868,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.416,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.146,
+        "n_specific": 82,
+        "group_precision": 0.938,
+        "group_recall": 0.174,
+        "group_f1": 0.294,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.763,
+        "n_specific": 38,
+        "group_precision": 0.757,
+        "group_recall": 0.709,
+        "group_f1": 0.732,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 0.953,
+        "n_specific": 43,
+        "group_precision": 0.931,
+        "group_recall": 0.607,
+        "group_f1": 0.735,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.302,
+        "n_specific": 43,
+        "group_precision": 0.95,
+        "group_recall": 0.633,
+        "group_f1": 0.76,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 0.159,
+        "n_specific": 44,
+        "group_precision": 0.786,
+        "group_recall": 0.229,
+        "group_f1": 0.355,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.0,
+        "n_specific": 46,
+        "group_precision": 0.667,
+        "group_recall": 0.109,
+        "group_f1": 0.188,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 0.9,
+        "n_specific": 40,
+        "group_precision": 0.692,
+        "group_recall": 0.9,
+        "group_f1": 0.783,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.889,
+        "n_specific": 54,
+        "group_precision": 0.842,
+        "group_recall": 0.889,
+        "group_f1": 0.865,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.073,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.123,
+        "n": 2406
+      }
+    },
+    "SpeakLoop weak forms, global 0.0 only": {
+      "all deletions": {
+        "recall": 0.839,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.353,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.024,
+        "n_specific": 82,
+        "group_precision": 0.833,
+        "group_recall": 0.058,
+        "group_f1": 0.109,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.711,
+        "n_specific": 38,
+        "group_precision": 0.778,
+        "group_recall": 0.62,
+        "group_f1": 0.69,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 0.93,
+        "n_specific": 43,
+        "group_precision": 0.958,
+        "group_recall": 0.517,
+        "group_f1": 0.672,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.116,
+        "n_specific": 43,
+        "group_precision": 0.979,
+        "group_recall": 0.522,
+        "group_f1": 0.681,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 0.091,
+        "n_specific": 44,
+        "group_precision": 0.714,
+        "group_recall": 0.104,
+        "group_f1": 0.182,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.087,
+        "n_specific": 46,
+        "group_precision": 0.5,
+        "group_recall": 0.236,
+        "group_f1": 0.321,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 0.9,
+        "n_specific": 40,
+        "group_precision": 0.692,
+        "group_recall": 0.9,
+        "group_f1": 0.783,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.574,
+        "n_specific": 54,
+        "group_precision": 0.939,
+        "group_recall": 0.574,
+        "group_f1": 0.713,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.061,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.117,
+        "n": 2406
+      }
+    },
+    "Whisper-small transcript diff": {
+      "all deletions": {
+        "recall": 0.39,
+        "n": 205
+      },
+      "all substitutions": {
+        "recall": 0.16,
+        "n": 589
+      },
+      "DH→D": {
+        "recall_specific": 0.0,
+        "n_specific": 82,
+        "group_precision": 1.0,
+        "group_recall": 0.023,
+        "group_f1": 0.045,
+        "group_n": 91
+      },
+      "final T/D deleted": {
+        "recall_specific": 0.316,
+        "n_specific": 38,
+        "group_precision": 0.833,
+        "group_recall": 0.38,
+        "group_f1": 0.522,
+        "group_n": 154
+      },
+      "final Z/S deleted": {
+        "recall_specific": 0.535,
+        "n_specific": 43,
+        "group_precision": 0.964,
+        "group_recall": 0.303,
+        "group_f1": 0.462,
+        "group_n": 130
+      },
+      "Z→S": {
+        "recall_specific": 0.093,
+        "n_specific": 43,
+        "group_precision": 1.0,
+        "group_recall": 0.3,
+        "group_f1": 0.462,
+        "group_n": 118
+      },
+      "ER→AH": {
+        "recall_specific": 0.068,
+        "n_specific": 44,
+        "group_precision": 1.0,
+        "group_recall": 0.083,
+        "group_f1": 0.154,
+        "group_n": 82
+      },
+      "IH→IY": {
+        "recall_specific": 0.087,
+        "n_specific": 46,
+        "group_precision": 0.5,
+        "group_recall": 0.164,
+        "group_f1": 0.247,
+        "group_n": 202
+      },
+      "R deleted": {
+        "recall_specific": 0.075,
+        "n_specific": 40,
+        "group_precision": 0.667,
+        "group_recall": 0.08,
+        "group_f1": 0.143,
+        "group_n": 129
+      },
+      "L deleted / L→W": {
+        "recall_specific": 0.167,
+        "n_specific": 54,
+        "group_precision": 0.818,
+        "group_recall": 0.167,
+        "group_f1": 0.277,
+        "group_n": 149
+      },
+      "function-word false-positive rate": {
+        "rate": 0.012,
+        "n": 164
+      },
+      "overall false-positive rate": {
+        "rate": 0.045,
+        "n": 2406
+      }
+    }
+  },
+  "diagnosis": {
+    "substitution_heard_correct": 0.478,
+    "n_detected_substitutions": 845,
+    "deletion_called_deletion": 0.899,
+    "n_detected_deletions": 664
+  }
+}

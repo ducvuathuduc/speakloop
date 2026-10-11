@@ -24,15 +24,15 @@ DEFAULT_THRESHOLD = float(os.environ.get("SPEAKLOOP_GOP_THRESHOLD", "0.0"))
 DEFAULT_INSERTION_GAIN = float(os.environ.get("SPEAKLOOP_INSERTION_GAIN", "3.0"))
 STRESS_RATIO = 1.35
 
-# Per-phone GOP thresholds, tuned on L2-ARCTIC dev speakers HQTV + PNV only by
-# coordinate ascent on dev F1 around the global default 0.0
-# (benchmarks/eval_l2arctic.py; THV + TLV held out, see benchmarks/RESULTS.md).
-# The wav2vec2 espeak model has a strong prior for the dictionary phone in
-# frequent words ("the" is heard as ð even when a listener hears d), so ð, d,
-# z and ɚ need a stricter (higher) bar; ɪ/iː confusions were mostly false
-# alarms on dev, so ɪ is almost never flagged.
+# Per-phone GOP thresholds, tuned on L2-ARCTIC dev speakers HQTV + PNV only
+# (coordinate ascent on dev F1 around the global default 0.0, with the false-alarm
+# rate on each phone's correctly-pronounced dev tokens capped at 15%; THV + TLV
+# held out, see benchmarks/RESULTS.md). The cap matters: unconstrained tuning
+# learns "always flag ð / ɚ" from the Vietnamese-L1 base rate, which scores well
+# but tells a speaker who says "the" correctly that it is wrong.
+# ɪ is almost never flagged: ɪ/iː flags were mostly false alarms on dev.
 PHONE_THRESHOLDS: dict[str, float] = {
-    "ð": 6.25, "d": 4.25, "z": 3.5, "l": 3.0, "ɜː": 4.75, "ɚ": 4.75,
+    "ð": 2.75, "d": 2.5, "z": 2.75, "l": 3.0, "ɜː": 1.75, "ɚ": 1.75,
     "ɹ": 0.25, "ʌ": 0.25, "ə": 0.25, "ɪ": -5.5,
 }
 

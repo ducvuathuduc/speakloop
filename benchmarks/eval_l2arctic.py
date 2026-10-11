@@ -180,7 +180,8 @@ CATEGORIES = [
     ("R deleted", lambda r: r["canon"] == "R", lambda r: r["kind"] == "deletion"),
     ("L deleted / L→W", lambda r: r["canon"] == "L", lambda r: r["kind"] != "correct"),
 ]
-MAIN = "SpeakLoop default (0.0 + per-phone, dev-tuned)"
+MAX_FA = 0.15
+MAIN = "SpeakLoop default (0.0 + per-phone, FA<=15% on dev)"
 FUNCTION_WORDS = {"to", "the", "a", "an", "of", "and", "for"}
 
 
@@ -204,9 +205,15 @@ def tune(rows: list[dict], key: str) -> tuple[float, dict]:
     return best[1], best[2]
 
 
-def tune_per_phone(rows: list[dict], key: str, global_th: float, min_pos: int = 15) -> dict[str, float]:
+def tune_per_phone(rows: list[dict], key: str, global_th: float, min_pos: int = 15,
+                   max_fa: float | None = None) -> dict[str, float]:
     """Coordinate ascent on dev F1: one threshold per canonical phone that has
-    >= min_pos dev errors; every other phone keeps the global threshold."""
+    >= min_pos dev errors; every other phone keeps the global threshold.
+
+    ``max_fa`` caps the false-alarm rate on that phone's *correct* dev tokens.
+    Without it, phones that Vietnamese speakers get wrong most of the time
+    (ð 73%, ɚ 66% on dev) are tuned to "always flag", which scores well on F1
+    but tells a speaker who says the phone right that it is wrong."""
     y = np.array([r["kind"] != "correct" for r in rows])
     g = np.array([r[key] if r[key] is not None else 50.0 for r in rows])
     ph = np.array([r["canon"] for r in rows])
@@ -217,7 +224,10 @@ def tune_per_phone(rows: list[dict], key: str, global_th: float, min_pos: int = 
         if (y & m).sum() < min_pos:
             continue
         best = (prf(y, g < cur)["f1"], th[p])
+        okm = m & ~y
         for t in np.arange(-6, 8.01, 0.25):
+            if max_fa is not None and okm.any() and (g[okm] < t).mean() > max_fa:
+                continue
             c = cur.copy(); c[m] = t
             f = prf(y, g < c)["f1"]
             if f > best[0] + 1e-9:
@@ -279,15 +289,19 @@ def report() -> None:
     g = np.array([r[key] for r in test])
     dg = np.array([r[key] for r in dev])
     dy = np.array([r["kind"] != "correct" for r in dev])
-    for name, base in [("+ per-phone thresholds (around dev-F1 global)",
-                        res["systems"]["SpeakLoop (context pass + weak forms)"]["threshold"]),
-                       (MAIN, 0.0)]:
-        pth = tune_per_phone(dev, key, base)
+    for name, base, cap in [("+ per-phone thr., unconstrained (around dev-F1 global)",
+                             res["systems"]["SpeakLoop (context pass + weak forms)"]["threshold"], None),
+                            ("0.0 + per-phone thr., unconstrained (L1 prior)", 0.0, None),
+                            (MAIN, 0.0, MAX_FA)]:
+        pth = tune_per_phone(dev, key, base, max_fa=cap)
         cut = np.array([pth.get(r["canon"], base) for r in test])
         dcut = np.array([pth.get(r["canon"], base) for r in dev])
         preds[name] = g < cut
         res["systems"][name] = {"threshold": {"global": base, **{str(k): v for k, v in pth.items()}},
                                 "dev": prf(dy, dg < dcut), "test": prf(y, g < cut)}
+        res["systems"][name]["test_false_alarm_on_correct_by_phone"] = {
+            str(ph): round(float((g[np.array([r["canon"] == ph and r["kind"] == "correct" for r in test])] <
+                                 pth[ph]).mean()), 3) for ph in pth}
     res["systems"]["SpeakLoop weak forms, global 0.0 only"] = {"threshold": 0.0, "test": prf(y, g < 0.0)}
     preds["SpeakLoop weak forms, global 0.0 only"] = g < 0.0
 
@@ -396,16 +410,18 @@ def chart(res: dict, curves: dict, test: list[dict]) -> None:
         v = c[n]
         return v.get("recall") if "recall" in v else v.get("recall_specific") or 0.0
     x = np.arange(len(names)); w = 0.38
-    a2.bar(x - w / 2, [val(sl, n) for n in names], w, color="#2563eb", label="SpeakLoop default")
-    a2.bar(x + w / 2, [val(wb, n) for n in names], w, color=colors["Whisper-small transcript diff"], label="Whisper-small diff")
+    b1 = a2.bar(x - w / 2, [val(sl, n) for n in names], w, color="#2563eb", label="SpeakLoop default")
+    b2 = a2.bar(x + w / 2, [val(wb, n) for n in names], w, color=colors["Whisper-small transcript diff"], label="Whisper-small diff")
+    for bars in (b1, b2):
+        a2.bar_label(bars, fmt="%.2f", fontsize=6.5, padding=1)
     a2.set_xticks(x)
     lab = []
     for n in names:
         v = sl[n]
         lab.append(f"{n}\n(n={v.get('n', v.get('n_specific'))})")
     a2.set_xticklabels(lab, rotation=40, ha="right", fontsize=8)
-    a2.set_ylim(0, 1); a2.set_ylabel("Recall of annotated errors")
-    a2.set_title("Which Vietnamese-L1 errors each system catches (test)", fontsize=10)
+    a2.set_ylim(0, 1.08); a2.set_ylabel("Recall of annotated errors")
+    a2.set_title(f"Which Vietnamese-L1 errors each system catches (same {nutt} test utts)", fontsize=10)
     a2.legend(fontsize=8); a2.grid(axis="y", alpha=.3)
     fig.suptitle("SpeakLoop phoneme scorer vs. transcript-diff baseline — L2-ARCTIC Vietnamese speakers", fontsize=12)
     fig.tight_layout()
