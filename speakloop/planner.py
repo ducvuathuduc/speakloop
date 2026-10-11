@@ -109,6 +109,21 @@ class InvalidDecision(RuntimeError):
     pass
 
 
+def strands_available() -> bool:
+    """True when the optional ``strands-agents`` package is importable (see requirements-agent.txt)."""
+    import importlib.util
+
+    try:
+        return importlib.util.find_spec("strands") is not None
+    except (ImportError, ValueError):  # ValueError: sys.modules["strands"] is None (blocked)
+        return False
+
+
+def _require_strands() -> None:
+    if not strands_available():
+        raise TierUnavailable("strands-agents not installed (optional extra, see requirements-agent.txt)")
+
+
 def bedrock_configured() -> bool:
     return bool(os.environ.get("AWS_BEARER_TOKEN_BEDROCK") or os.environ.get("AWS_ACCESS_KEY_ID")
                 or os.environ.get("AWS_PROFILE"))
@@ -117,6 +132,7 @@ def bedrock_configured() -> bool:
 def make_bedrock_model():
     if not bedrock_configured():
         raise TierUnavailable("no Bedrock API key or AWS credentials configured")
+    _require_strands()
     from botocore.config import Config
     from strands.models.bedrock import BedrockModel
 
@@ -132,6 +148,7 @@ def make_local_model():
     url = os.environ.get("SPEAKLOOP_LOCAL_LLM_URL")
     if not url:
         raise TierUnavailable("SPEAKLOOP_LOCAL_LLM_URL not set (start llama-server, see docs/AGENT.md)")
+    _require_strands()
     from urllib.parse import urlparse
 
     from strands.models.llamacpp import LlamaCppModel
@@ -252,6 +269,9 @@ async def plan(body: dict, *, factories: dict[str, Callable[[], Any]] | None = N
         except KeyError:
             trace.append({"tier": tier, "skipped": "unknown tier"})
             continue
+        except ImportError as exc:  # a model provider's own optional dependency is missing
+            trace.append({"tier": tier, "skipped": f"missing dependency: {exc}"})
+            continue
         t0 = time.monotonic()
         try:
             timeout = _env_f(f"SPEAKLOOP_{tier.upper()}_DEADLINE_S", 25 if tier == "bedrock" else 100)
@@ -275,5 +295,5 @@ async def plan(body: dict, *, factories: dict[str, Callable[[], Any]] | None = N
 
 def status() -> dict:
     return {"tiers": tiers(), "breakers": [breaker(t).snapshot() for t in tiers() if t != "rules"],
-            "bedrock_configured": bedrock_configured(),
+            "bedrock_configured": bedrock_configured(), "strands_installed": strands_available(),
             "local_url": os.environ.get("SPEAKLOOP_LOCAL_LLM_URL")}

@@ -9,11 +9,12 @@ It is mounted on the main SpeakLoop server, and can also run on its own:
     python -m speakloop.memory_tools            # Streamable HTTP on :8766/mcp
 """
 
-from __future__ import annotations
+# No `from __future__ import annotations`: the SDK resolves tool signatures at runtime and the
+# l1 type is built per server from the installed packs (a local name, not a module global).
 
 import json
 import os
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -22,7 +23,23 @@ from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from .memory import SoundGraph
 
 LearnerId = Annotated[str, Field(description="Stable id of the learner.")]
-L1 = Annotated[str, Field(description="Learner's first language as an installed pack code, e.g. 'vi'.")]
+
+
+def l1_type(codes: list[str] | tuple[str, ...]) -> tuple[Any, str]:
+    """Annotated type for the ``l1`` argument, restricted to the installed pack codes.
+
+    The JSON Schema the client (and the model) sees becomes ``{"enum": [...installed codes]}``
+    instead of a free string, so a model cannot invent ``"vietnamese"`` or ``"vn"``.
+    Returns ``(type, default)``; the default is ``vi`` when installed, else the first pack.
+    With no packs installed it degrades to ``str`` (calls then fail with a clear tool error).
+    """
+    codes = tuple(sorted(codes))
+    if not codes:
+        return Annotated[str, Field(description="Learner's first language as an installed pack code (none installed).")], "vi"
+    default = "vi" if "vi" in codes else codes[0]
+    desc = f"Learner's first language, one of the installed L1 pack codes: {', '.join(codes)}."
+    # Always publish an explicit "enum" (pydantic emits "const" for a single-member Literal).
+    return Annotated[Literal[codes], Field(description=desc, json_schema_extra={"enum": list(codes)})], default  # type: ignore[valid-type]
 
 
 class PhoneError(BaseModel):
@@ -52,11 +69,12 @@ def _err(msg: str) -> CallToolResult:
 
 def register(mcp, graph: SoundGraph, meta: dict | None = None) -> None:
     kw = {"meta": meta} if meta else {}
+    L1, L1_DEFAULT = l1_type(list(graph.packs))
 
     @mcp.tool(title="Get weak sounds",
               description="The learner's weakest English sounds from their Sound Graph (error rate with recency decay, FSRS retrievability, top confusions such as t→∅ or θ→t).",
               annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True), **kw)
-    def get_weak_sounds(learner_id: LearnerId, limit: Annotated[int, Field(ge=1, le=12)] = 3, l1: L1 = "vi") -> CallToolResult:
+    def get_weak_sounds(learner_id: LearnerId, limit: Annotated[int, Field(ge=1, le=12)] = 3, l1: L1 = L1_DEFAULT) -> CallToolResult:
         try:
             return _result(graph.get_weak_sounds(learner_id, limit, l1))
         except KeyError as exc:
@@ -65,7 +83,7 @@ def register(mcp, graph: SoundGraph, meta: dict | None = None) -> None:
     @mcp.tool(title="Next sound drill",
               description="Pick the sound to drill now: FSRS-due sounds first (highest priority), else the weakest, else the most common pitfall for the learner's first language. Returns minimal pairs, words, a tip in English and the learner's language.",
               annotations=ToolAnnotations(read_only_hint=True), **kw)
-    def next_drill(learner_id: LearnerId, l1: L1 = "vi") -> CallToolResult:
+    def next_drill(learner_id: LearnerId, l1: L1 = L1_DEFAULT) -> CallToolResult:
         try:
             return _result(graph.next_drill(learner_id, l1))
         except KeyError as exc:
@@ -82,7 +100,7 @@ def register(mcp, graph: SoundGraph, meta: dict | None = None) -> None:
         practised: Annotated[list[str] | None, Field(description="Sound ids exercised and produced correctly")] = None,
         word: Annotated[str | None, Field(description="Word practised")] = None,
         score: Annotated[float | None, Field(ge=0, le=1, description="Scorer confidence 0-1 (optional)")] = None,
-        l1: L1 = "vi",
+        l1: L1 = L1_DEFAULT,
     ) -> CallToolResult:
         try:
             out = graph.record_attempt(learner_id, sound_id=sound_id, correct=correct,
@@ -104,7 +122,7 @@ def register(mcp, graph: SoundGraph, meta: dict | None = None) -> None:
     @mcp.tool(title="Sound progress summary",
               description="Summary of the learner's sound practice over the last N days: attempts, accuracy, most-improved sounds, sounds mastered (FSRS stability ≥ 21 days) and how many are due.",
               annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True), **kw)
-    def progress_summary(learner_id: LearnerId, days: Annotated[int, Field(ge=1, le=90)] = 7, l1: L1 = "vi") -> CallToolResult:
+    def progress_summary(learner_id: LearnerId, days: Annotated[int, Field(ge=1, le=90)] = 7, l1: L1 = L1_DEFAULT) -> CallToolResult:
         try:
             return _result(graph.progress_summary(learner_id, days, l1))
         except KeyError as exc:
