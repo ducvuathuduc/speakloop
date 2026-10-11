@@ -16,3 +16,5 @@ speakloop = "speakloop.server:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: loads real wav2vec2 weights (~1.2 GB); run with -m slow"]
+addopts = "-m 'not slow'"
