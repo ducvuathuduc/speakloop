@@ -90,8 +90,8 @@ const stateAt = (f: number): UIState => {
   if (f < 346) return { kind: "split" };
   if (f < 466) {
     const K = REAL_VO.karaoke;
-    const playing = f >= K && f < K + 78;
-    const t = f < K || f >= K + 84 ? null : 0.32 + (f - K) / 30;
+    const playing = f >= K && f < K + 56;
+    const t = f < K || f >= K + 62 ? null : clipToFixture((f - K) / 30);
     return { kind: "karaoke", t, playing };
   }
   if (f >= 496 && f < 548) return { kind: "drill", rec: { state: "recording", level: 0.15 + 0.85 * lvl(f, REAL_VO.drill, ENV.walked) } };
@@ -100,6 +100,13 @@ const stateAt = (f: number): UIState => {
   return { kind: "drill" };
 };
 const SWAPS = [196, 346, 466];
+
+// Karaoke playhead follows the actual learner clip: word onsets in public/vo/learner.wav (faster-whisper word
+// timestamps refined with the clip's energy envelope) mapped onto the fixture's word times.
+const CLIP_T = [0, 0.05, 0.16, 0.43, 0.58, 0.68, 0.95, 1.58];
+const FIX_T = [0.32, 0.32, 0.66, 1.14, 1.34, 1.52, 1.96, 2.62];
+const clipToFixture = (c: number) =>
+  c >= CLIP_T[CLIP_T.length - 1] ? FIX_T[FIX_T.length - 1] + (c - CLIP_T[CLIP_T.length - 1]) : interpolate(c, CLIP_T, FIX_T);
 
 const CAPS: [number, number, string, string][] = [
   [44, 190, "1", "Say it once."],
@@ -177,6 +184,22 @@ export const Real: React.FC<{ dur: number }> = ({ dur }) => {
         {prev && <UICard s={prev} zoom={Z} style={{ position: "absolute", inset: 0, opacity: 1 - k }} />}
         <UICard s={cur} zoom={Z} style={{ position: "absolute", inset: 0, opacity: prev ? k : 1, transform: prev ? `translateY(${(1 - k) * 18}px)` : undefined }} />
       </div>
+      {f >= 566 && (
+        <div
+          style={{
+            position: "absolute",
+            left: ox + (24 - 12) * Z * cam.k,
+            top: oy + (413 - 10) * Z * cam.k,
+            width: (242 + 24) * Z * cam.k,
+            height: (22 + 20) * Z * cam.k,
+            borderRadius: 999,
+            border: `3px solid ${C.ok}`,
+            boxShadow: `0 0 ${40 * ramp(f, 566, 590)}px rgba(86,180,233,0.45)`,
+            opacity: fade(f, 566, 6) * (1 - ramp(f, dur - 12, dur)),
+            transform: `scale(${ramp(f, 566, 584, 1.12, 1)})`,
+          }}
+        />
+      )}
       <Cursor x={ox + c.x * Z * cam.k} y={oy + c.y * Z * cam.k} press={press} o={cursorO} />
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 210, background: "linear-gradient(rgba(11,13,17,0), rgba(11,13,17,0.94) 55%)" }} />
       {CAPS.map(([a, b, n, txt]) => {

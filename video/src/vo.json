@@ -12,7 +12,7 @@
   "teaser": [
     {"clip": "learner", "at": 0.267},
     {"clip": "meet", "at": 6.35},
-    {"clip": "proof", "at": 23.733},
+    {"clip": "proof", "at": 22.533},
     {"clip": "close", "at": 26.4}
   ]
 }

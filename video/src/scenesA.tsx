@@ -65,7 +65,7 @@ export const Hook: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, verti
         </div>
         {word("walk", 10, C.text)}
         <div style={{ opacity: fade(f, 8, 8) }}>
-          <Wave from={10} to={100} color={C.text2} w={vertical ? 560 : 520} />
+          <Wave from={10} to={64} color={C.text2} w={vertical ? 560 : 520} />
         </div>
         <div style={{ fontSize: 32, color: C.text3, opacity: fade(f, 20, 10) }}>She walk to the shops yesterday.</div>
       </div>

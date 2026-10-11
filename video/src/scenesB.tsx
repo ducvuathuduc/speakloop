@@ -105,6 +105,7 @@ const Bar: React.FC<{ at: number; v: number; label: string; win?: boolean; W: nu
 export const Proof: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vertical }) => {
   const f = useCurrentFrame();
   const W = vertical ? 480 : 920;
+  const H = vertical ? -36 : 0; // teaser: land the 2.4x earlier so the precision line holds before the cut
   return (
     <Scene dur={dur}>
       <AbsoluteFill style={center}>
@@ -138,14 +139,14 @@ export const Proof: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vert
         }
       >
         <div style={{ fontSize: vertical ? 220 : 210, fontWeight: 800, letterSpacing: "-0.05em", color: C.accent, lineHeight: 1 }}>
-          <Mask at={232} dur={26}>
+          <Mask at={232 + H} dur={26}>
             2.4×
           </Mask>
         </div>
         <div style={{ fontSize: 44, fontWeight: 700, marginTop: 18 }}>
-          <MaskWords text="more real errors caught" at={246} base={2} />
+          <MaskWords text="more real errors caught" at={246 + H} base={2} />
         </div>
-        <div style={{ fontSize: 34, color: C.text, marginTop: 20, fontWeight: 600, opacity: fade(f, 276, 10) }}>at similar precision<br /><span style={{ color: C.text2 }}>(0.59 vs 0.62)</span></div>
+        <div style={{ fontSize: 34, color: C.text, marginTop: 20, fontWeight: 600, opacity: fade(f, 276 + H, 10) }}>at similar precision<br /><span style={{ color: C.text2 }}>(0.59 vs 0.62)</span></div>
       </div>
       <div
         style={{
