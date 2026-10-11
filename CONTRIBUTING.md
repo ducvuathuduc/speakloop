@@ -13,7 +13,8 @@ matters. By taking part you agree to follow our [Code of Conduct](CODE_OF_CONDUC
 Good first contributions:
 
 - New drills in `speakloop/content.py` (original text only, with a reference answer)
-- More first-language profiles beyond Vietnamese (`skills/speakloop-coach/references/`)
+- A new first-language sound pack: copy `skills/l1-template/` to `skills/l1-<code>/`, fill `pack.json`
+  (and optionally `rules.yaml`), then `python -m speakloop.skillpacks validate skills/l1-<code>`
 - Accessibility and mobile layout fixes for the simulator (`web/`)
 - New planner providers behind the same `/agent/step` contract
 
@@ -22,8 +23,10 @@ Good first contributions:
 ```bash
 git clone https://github.com/ducvuathuduc/speakloop && cd speakloop
 python3 -m venv .venv && source .venv/bin/activate   # Python 3.11+
-pip install -r requirements.txt "pytest>=8" "boto3>=1.34"
-python -m pytest -q                                  # must stay green
+pip install -r requirements-dev.txt
+sudo apt-get install espeak-ng                       # optional: the G2P tests skip without it
+python -m pytest -q                                  # must stay green (slow real-model tests: -m slow)
+(cd ui && npm ci && npm test)                        # if you touch the MCP App card
 python -m speakloop.server                           # http://127.0.0.1:8765
 ```
 

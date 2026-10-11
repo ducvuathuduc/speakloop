@@ -1,0 +1,45 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/site/**", "speakloop/ui_card.html", "assets/**", "docs/design/screens/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble site (static; the card runs on demo data outside an MCP host)
+        run: |
+          mkdir -p _site/card _site/brand _site/screens
+          cp docs/site/index.html _site/
+          cp speakloop/ui_card.html _site/card/index.html
+          cp assets/brand/*.svg assets/brand/*.png assets/brand/favicon.ico _site/brand/
+          cp assets/readme/hero.png assets/social-preview.png _site/
+          cp docs/design/screens/*-dark-1280x800.png _site/screens/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

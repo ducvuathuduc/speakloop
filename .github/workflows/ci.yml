@@ -9,24 +9,51 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: pytest · Python ${{ matrix.python }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         python: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
+      - name: espeak-ng (G2P for the phoneme scorer tests)
+        run: sudo apt-get update -q && sudo apt-get install -y -q espeak-ng
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: requirements*.txt
       - name: Install
-        run: pip install -r requirements.txt "pytest>=8" "boto3>=1.34"
-      - name: Test (no network, no AWS calls)
+        run: pip install -r requirements.txt "pytest>=8" "boto3>=1.34" "jsonschema>=4"
+      - name: Test (no network, no AWS calls, no model weights)
         env:
           SPEAKLOOP_LLM: rules
         run: python -m pytest -v
+
+  ui:
+    name: vitest · MCP App card
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Syntax-check the simulator scripts
+        working-directory: web
+        run: for f in *.js; do node --check "$f"; done

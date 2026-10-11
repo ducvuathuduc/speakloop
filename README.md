@@ -8,7 +8,7 @@ It listens, names the *one* sound to fix, and remembers which sounds you keep dr
 so tomorrow's session starts where today's left off.
 
 [![CI](https://github.com/ducvuathuduc/speakloop/actions/workflows/ci.yml/badge.svg)](https://github.com/ducvuathuduc/speakloop/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-33%20passed-2ea44f)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-176%20pytest%20%C2%B7%2017%20vitest-2ea44f)](#-testing)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25-6E56CF)](https://modelcontextprotocol.io/specification/2025-11-25)
 [![Release](https://img.shields.io/github/v/release/ducvuathuduc/speakloop?color=FF8A3D)](https://github.com/ducvuathuduc/speakloop/releases)
@@ -19,14 +19,16 @@ so tomorrow's session starts where today's left off.
 [Benchmark](#-benchmark) ·
 [How it works](#-how-it-works) ·
 [MCP tools](#-mcp-surface) ·
-[Roadmap](#%EF%B8%8F-roadmap)
+[Roadmap](#%EF%B8%8F-roadmap) ·
+[Support](#-support)
 
 <!-- TODO: replace with the 15-second teaser GIF from video-motion/out/ once it is rendered, e.g.
 <a href="assets/speakloop-demo.mp4"><img src="assets/readme/teaser.gif" width="720" alt="15-second SpeakLoop teaser"></a> -->
 ▶ **[Watch the demo (2:49)](assets/speakloop-demo.mp4)** · 15-second teaser coming soon
 
-<sub>The hero shows the Alexa+ card design and the phoneme scorer from the in-development <code>feat/ui</code> and
-<code>feat/phoneme</code> branches, with demo data. Release v0.1.0 scores the speech-to-text transcript; see
+<sub>The hero is the v0.2.0 MCP App card rendering <b>demo data</b>. The phone-level scorer behind it is in
+<code>main</code> as the <code>assess_pronunciation</code> tool, an optional install (open wav2vec2 weights, ~1.2 GB);
+the browser simulator's voice loop still scores the speech-to-text transcript. See
 <a href="#-project-status--honest-limitations">Project status</a>.</sub>
 
 </div>
@@ -36,9 +38,10 @@ so tomorrow's session starts where today's left off.
 > [!NOTE]
 > **Built for the Alexa+ track of _Build, Ship, Shape: Amazon Developer Hackathon 2026_.**
 > Alexa+ add-on tooling is partner-only, so this repo ships an **Alexa+ experience simulator**: a web page that is
-> a real MCP client with voice in, voice out and an MCP traffic inspector. The default planner is a deterministic
-> offline one, and that is what the demo uses. The Amazon Bedrock planner is implemented and unit-tested, but live
-> calls from our new AWS account currently return `429 Too many tokens per day`; see
+> a real MCP client with voice in, voice out and an MCP traffic inspector. The planner tries Amazon Bedrock, then a
+> local model, then a deterministic offline router; with no keys configured (as in the quickstart and the demo) the
+> offline router answers. The Bedrock tier is implemented and unit-tested, but live calls from our new AWS account
+> currently return `429 Too many tokens per day`; see
 > [Project status](#-project-status--honest-limitations).
 
 ## 📊 Benchmark
@@ -54,8 +57,7 @@ against the reference, at about the same precision:
 
 The cost is more false alarms on correctly said phones: 12.3 % vs 4.5 % for the baseline. Thresholds were tuned on
 separate dev speakers only. Method, per-error breakdown and limitations:
-**[benchmarks/RESULTS.md](https://github.com/ducvuathuduc/speakloop/blob/feat/phoneme/benchmarks/RESULTS.md)**
-(on the `feat/phoneme` branch, not yet in a release).
+**[benchmarks/RESULTS.md](benchmarks/RESULTS.md)** · latency and memory: [benchmarks/LATENCY.md](benchmarks/LATENCY.md).
 
 <div align="center">
 <img src="assets/readme/features.png" width="100%" alt="Three cards: every phone you said marked heard, changed or missing; a minimal-pair drill for the dropped sound; weak sounds tracked across days">
@@ -75,7 +77,23 @@ python -m speakloop.server                     # → http://127.0.0.1:8765
 ```
 
 Open **http://127.0.0.1:8765** and click the chips in order (*Hi → Practise 10 min → Yes / next → …*), or press the
-mic and talk. The MCP endpoint is **`http://127.0.0.1:8765/mcp`**.
+mic and talk. The MCP endpoint is **`http://127.0.0.1:8765/mcp`** (15 tools).
+
+<details>
+<summary><b>Optional: phone-level scoring (<code>assess_pronunciation</code>)</b></summary>
+
+The core server runs without it; `assess_pronunciation` returns a clear tool error until the engine is installed.
+
+```bash
+sudo apt-get install espeak-ng                    # macOS: brew install espeak-ng
+pip install --index-url https://download.pytorch.org/whl/cpu torch
+pip install -r requirements-phoneme.txt
+python -m speakloop.phoneme.download              # ~1.2 GB of open weights, once (or let the first call fetch them)
+```
+
+On CPU the first call pays the model load; peak memory is about 2.3 GB. Numbers in
+[benchmarks/LATENCY.md](benchmarks/LATENCY.md).
+</details>
 
 > [!TIP]
 > `seed_demo.py` writes earlier practice days with **simulated dates** (scored by the real scorer), so streaks,
@@ -99,6 +117,7 @@ mic and talk. The MCP endpoint is **`http://127.0.0.1:8765/mcp`**.
 - [Project structure](#-project-structure)
 - [Related project: mcp-lite-browser](#-related-project-mcp-lite-browser)
 - [Contributing](#-contributing)
+- [Support](#-support)
 - [License](#-license)
 - [Acknowledgements](#-acknowledgements)
 
@@ -155,18 +174,21 @@ says *"The lecture was **move** to the main hall."* SpeakLoop scores it, highlig
 |---|---|
 | 🗓️ **Plans from history** | "Let's practise for 10 minutes" builds a plan sized to the time you have: due sound reviews, then your weakest task types, with a focus sound. |
 | 🎙️ **Exam-style drills by voice** | Read Aloud, Repeat Sentence, Answer Short Question, Describe Image. Audio-only tasks are *spoken*, never displayed (`display_text: null`). |
+| 🔬 **Phone-level scoring** *(new in 0.2)* | `assess_pronunciation` hears *sounds*, not words: an open wav2vec2 phoneme recogniser plus goodness-of-pronunciation marks every expected phone heard, changed or missing, then maps errors to Vietnamese-L1 patterns. [Benchmarked](#-benchmark) on L2-ARCTIC. |
+| 🧠 **Sound Graph** *(new in 0.2)* | Per-learner memory of *sounds* (not just words) with FSRS spaced repetition and a confusion graph (t→∅, θ→t). `next_drill` / `start_pair_drill` pick what is due. |
+| 🌏 **L1 sound packs** *(new in 0.2)* | `skills/l1-vi/` is an installable Agent Skill + data (`pack.json`, `rules.yaml`); `skills/l1-template/` and `python -m speakloop.skillpacks validate` let anyone add a first language. |
 | 🔎 **Explainable scoring** | Content, fluency (words per minute, fillers, restarts) and a pronunciation proxy that flags *systematic* substitutions such as books→book, asked→ask, three→tree. |
 | 🧠 **Memory across sessions** | SQLite learner memory: streaks, a practice estimate vs. your target (10–90 practice scale), weak sounds, spaced-repetition queue. |
 | 🇻🇳 **Bilingual tips** | Every tip in English and Vietnamese, on screen only, so speech stays short. |
-| 🃏 **Interactive MCP App** | One `ui://speakloop/card.html` view renders every result; its buttons (*Next drill*, *My progress*, *Start step 1*) call tools back through the host. |
+| 🃏 **Interactive MCP App** | One `ui://speakloop/card.html` (Preact, built to a single file from `ui/`) follows the Alexa+ design tokens and renders every result: transcript-vs-sounds split, karaoke phone strip, weak-sound rings, minimal-pair drill. Its buttons call tools back through the host. |
 | 🧩 **Agent Skill** | `skills/speakloop-coach/SKILL.md` (agentskills.io format) carries the coaching workflow, served over MCP and used as the LLM planner's system prompt. |
 | 🛡️ **Transcript guardrail** | While a drill is active, the learner's words go to `submit_attempt` **verbatim**, so no model can "fix" the dropped endings the coach is measuring. |
 | ⏰ **Practice routine** | `set_practice_routine` returns an iCalendar feed (recurring event, 5-minute alarm) for any calendar app. |
-| 🔌 **Swappable planner** | Offline rules (default), Amazon Bedrock Converse with tool use, or any OpenAI-compatible endpoint, with a throttle circuit breaker. |
+| 🔌 **Tiered planner** | Strands Agents: Amazon Bedrock → a local llama.cpp model → offline rules, each model tier behind a circuit breaker. Bedrock Converse and OpenAI-compatible planners are also selectable directly. |
 
 ## 🧭 How it works
 
-<img src="assets/readme/architecture.svg" width="100%" alt="Architecture: the browser simulator (voice in, voice out, mcp-lite-browser client, MCP Apps host) talks MCP 2025-11-25 over Streamable HTTP to the SpeakLoop MCP server (9 tools, MCP App, Agent Skill, coach, explainable scorer, SQLite memory); a /agent/step planner (rules, Amazon Bedrock, OpenAI-compatible) picks the next tool call. Branch work in development: phoneme scorer, Strands planner with FSRS memory, design-system cards.">
+<img src="assets/readme/architecture.svg" width="100%" alt="Architecture: the browser simulator (voice in, voice out, mcp-lite-browser client, MCP Apps host) talks MCP 2025-11-25 over Streamable HTTP to the SpeakLoop MCP server (15 tools, MCP App, Agent Skill, coach, explainable scorer, SQLite memory); a /agent/step planner (offline rules, Bedrock via Strands, a local LLM) picks the next tool call. New in v0.2.0: phoneme scorer, FSRS Sound Graph with L1 packs, Alexa+ design-system card.">
 
 The same flow as Mermaid:
 
@@ -178,13 +200,16 @@ flowchart LR
     LOOP <--> MCPC["mcp-lite client<br/>Streamable HTTP"]
     MCPC --> BRIDGE["MCP Apps host bridge<br/>sandboxed iframe"]
   end
-  LOOP -- "what next?" --> PLAN["/agent/step planner<br/>rules · Amazon Bedrock · OpenAI-compatible"]
+  LOOP -- "what next?" --> PLAN["/agent/step planner (Strands)<br/>Bedrock → local LLM → rules"]
   MCPC -- "MCP 2025-11-25<br/>initialize · tools/* · resources/* · prompts/*" --> TOOLS
   subgraph SRV["SpeakLoop MCP server · official MCP Python SDK"]
-    TOOLS["9 tools"] --> COACH["Coach<br/>plan · spaced repetition · streaks"]
-    COACH --> SCORE["Explainable scorer"]
+    TOOLS["15 tools"] --> COACH["Coach<br/>plan · spaced repetition · streaks"]
+    COACH --> SCORE["Explainable scorer<br/>(transcript)"]
     COACH --> DB[("SQLite<br/>learner memory")]
-    RES["ui://speakloop/card.html · MCP App<br/>skill://speakloop-coach/SKILL.md · Agent Skill"]
+    TOOLS --> PHON["Phoneme scorer<br/>wav2vec2 + GOP · optional"]
+    PHON --> PACK["l1-vi pack<br/>rules.yaml · pack.json"]
+    TOOLS --> SG[("Sound Graph<br/>FSRS per sound")]
+    RES["ui://speakloop/card.html · MCP App<br/>skill://speakloop-coach · skill://l1-vi · Agent Skills"]
   end
 ```
 
@@ -306,9 +331,9 @@ falls back for that turn. Setup, IAM policy and cost notes: [`docs/AWS.md`](docs
 
 **Server:** `speakloop` · **Transport:** Streamable HTTP at `/mcp` (stateless) · **Protocol:** `2025-11-25`
 
-### Tools (9)
+### Tools (15)
 
-Every tool except `explain_sound` declares the MCP App in `_meta.ui.resourceUri`.
+Coaching session (9). Every tool except `explain_sound` declares the MCP App in `_meta.ui.resourceUri`.
 
 | Tool | What it does | Key arguments | Hints |
 |---|---|---|---|
@@ -324,13 +349,26 @@ Every tool except `explain_sound` declares the MCP App in `_meta.ui.resourceUri`
 
 `task_type` is one of `read_aloud` · `repeat_sentence` · `answer_short_question` · `describe_image`. All learner tools take `learner_id`.
 
-### Resources (3) and prompt (1)
+Sound Graph and pronunciation (6, new in v0.2.0). `l1` is an enum of the installed L1 packs (today: `vi`).
+
+| Tool | What it does | Key arguments | Hints |
+|---|---|---|---|
+| `assess_pronunciation` | Scores a recording phone by phone against the intended sentence; returns every expected phone (heard / changed / missing), word scores and L1 findings, and records misses in the Sound Graph. Needs the optional phoneme engine. | `reference_text`, `audio_wav_base64` (WAV/FLAC, ≤ 30 s), `sample_rate?` (raw PCM only), `learner_id?` | |
+| `start_pair_drill` | Minimal-pair card (walk / walked) for a finding, a sound, or whatever FSRS says is due; the differing phone is highlighted. | `focus?` (rule id), `node?` (sound id), `step` | read-only |
+| `get_weak_sounds` | Weakest sounds with error rate, FSRS retrievability and top confusions. | `limit` | read-only · idempotent |
+| `next_drill` | The sound to drill now (due → weakest → common for the L1) with pairs, words and tips. | `l1` | read-only |
+| `record_attempt` | Records a drill result or the scorer's phone errors; updates the FSRS schedule. | `sound_id` + `correct`, or `errors[]` | |
+| `progress_summary` | Sound practice over N days: accuracy, most improved, mastered, due. | `days` | read-only · idempotent |
+
+### Resources (5) and prompt (1)
 
 | URI / name | Type | Purpose |
 |---|---|---|
 | `ui://speakloop/card.html` | `text/html;profile=mcp-app` | The MCP App: one card view for every `kind` (profile, plan, drill, result, review, progress, tip) |
 | `skill://speakloop-coach/SKILL.md` | `text/markdown` | The Agent Skill: session flow and voice rules |
 | `skill://speakloop-coach/references/vietnamese-l1-pitfalls.md` | `text/markdown` | Reference: the sound patterns the scorer flags |
+| `skill://l1-vi/SKILL.md` | `text/markdown` | Vietnamese-L1 sound pack (Agent Skill): how to coach a finding |
+| `skill://l1-vi/pack.json` | `application/json` | Machine-readable sounds, detect rules and minimal pairs |
 | `daily_session` *(prompt)* | prompt | Kicks off today's coached session for a learner (`learner_id`, `minutes`) |
 
 ### HTTP routes
@@ -341,7 +379,7 @@ Every tool except `explain_sound` declares the MCP App in `_meta.ui.resourceUri`
 | `GET /` and `/web/*` | The Alexa+ experience simulator |
 | `POST /agent/step` | Stateless "what next?" planner used by the simulator |
 | `GET /calendar/{learner_id}.ics` | iCalendar feed for the practice routine |
-| `GET /healthz` | Health check (`{"ok": true, "llm_provider": "rules"}`) |
+| `GET /healthz` | Health check: `{"ok": true, "llm_provider": "auto", "planner": {tiers, breakers, …}}` |
 
 ## ⚙️ Configuration
 
@@ -351,7 +389,9 @@ All settings are environment variables; copy [`.env.example`](.env.example) as a
 |---|---|---|
 | `HOST` / `PORT` | `127.0.0.1` / `8765` | Bind address |
 | `SPEAKLOOP_DB` | `speakloop.db` (repo root) | SQLite file for learner memory |
-| `SPEAKLOOP_LLM` | `rules` | Planner: `rules` (offline) · `bedrock` · `openai` |
+| `SPEAKLOOP_LLM` | `auto` | Planner: `auto` (Strands tiers below) · `rules` (offline only) · `bedrock` · `openai` |
+| `SPEAKLOOP_TIERS` | `bedrock,local,rules` | Tier order for `auto`; model tiers are skipped when not configured |
+| `SPEAKLOOP_LOCAL_LLM_URL` | *(empty)* | llama.cpp `llama-server` (or any OpenAI-compatible server) for the `local` tier |
 | `SPEAKLOOP_LLM_COOLDOWN_S` | `600` | Seconds to stay on the offline planner after a throttled LLM call |
 | `SPEAKLOOP_ALLOWED_HOSTS` | *(empty)* | Extra comma-separated `Host` values allowed (tunnels, containers) |
 | `SPEAKLOOP_DISABLE_HOST_CHECK` | *(unset)* | Set to disable DNS-rebinding protection (not recommended) |
@@ -359,12 +399,26 @@ All settings are environment variables; copy [`.env.example`](.env.example) as a
 | `AWS_BEARER_TOKEN_BEDROCK` | *(empty)* | Bedrock API key. Leave empty to use the standard AWS credential chain via boto3 |
 | `AWS_REGION` | `us-east-1` | Bedrock region (`AWS_DEFAULT_REGION` also read) |
 | `BEDROCK_MODEL_ID` | `amazon.nova-lite-v1:0` | Any Converse-compatible model with tool use |
+| `SPEAKLOOP_PHONEME_MODEL` | `facebook/wav2vec2-lv-60-espeak-cv-ft` | Phoneme model (HF id or local path) for `assess_pronunciation` |
+| `SPEAKLOOP_PHONEME_DTYPE` / `SPEAKLOOP_PHONEME_THREADS` | `float32` / torch default | Compute dtype (keep float32 on CPU) and intra-op threads |
+| `SPEAKLOOP_L1_RULES` | `skills/l1-vi/rules.yaml` | L1 rule file the phoneme scorer applies |
+| `SPEAKLOOP_MAX_AUDIO_SECONDS` | `30` | Longest recording `assess_pronunciation` accepts |
 | `OPENAI_BASE_URL` / `OPENAI_MODEL` / `OPENAI_API_KEY` | `https://api.openai.com/v1` / `gpt-4o-mini` / *(empty)* | OpenAI-compatible planner |
 
 ## 📐 How scoring works
 
-`speakloop/scoring.py` is deliberately simple and fully explainable. No audio leaves the device in the simulator;
-the browser's speech-to-text produces a transcript and SpeakLoop scores the transcript.
+SpeakLoop has two scorers.
+
+**Phone level (`assess_pronunciation`, new in v0.2.0).** `speakloop/phoneme/` runs an open wav2vec2 model that emits
+espeak IPA phones, force-aligns the reference sentence (espeak-ng G2P) with CTC, and computes a goodness-of-pronunciation
+score per phone. Phones below per-phone thresholds (tuned on L2-ARCTIC dev speakers only, false alarms capped at 15 %)
+are flagged as deleted or substituted, and `skills/l1-vi/rules.yaml` turns each flag into a teachable finding
+(e.g. `VN-ED-DROP`) linked to a Sound Graph node. It is not a trained assessment model and it can be wrong, so the
+coach phrases low-precision patterns as "it sounded like…". Accuracy: [benchmarks/RESULTS.md](benchmarks/RESULTS.md).
+
+**Transcript level (`submit_attempt`, the simulator's voice loop).** `speakloop/scoring.py` is deliberately simple and
+fully explainable. No audio leaves the device in the simulator; the browser's speech-to-text produces a transcript
+and SpeakLoop scores the transcript.
 
 | Component | Signal |
 |---|---|
@@ -378,20 +432,22 @@ Scores are **practice estimates on a 10–90 scale, not official exam scores**.
 ## ✅ Testing
 
 ```bash
-pip install "pytest>=8" "boto3>=1.34"
-python -m pytest -q
+sudo apt-get install espeak-ng        # optional: G2P tests skip without it
+pip install -r requirements-dev.txt
+python -m pytest -q                   # 176 passed, 3 deselected (slow, real-model)
+python -m pytest -q -m slow           # 3 passed; needs requirements-phoneme.txt and the model weights
+cd ui && npm ci && npm test           # 17 vitest tests for the card's view model
 ```
 
-```text
-.................................                                        [100%]
-33 passed
-```
-
-The suite (verified locally with Python 3.12 before this release; CI runs it on 3.11, 3.12 and 3.13) covers:
+Verified locally with Python 3.12 before the v0.2.0 release. CI runs pytest on 3.11, 3.12 and 3.13 with espeak-ng but
+without torch, so 5 GOP tests skip there (171 passed, 5 skipped), and vitest on Node 22. The suite covers:
 
 - **Scoring** (`test_scoring.py`): tokenisation, Vietnamese-L1 error patterns, dropped endings, fillers and pace, short-answer near misses, Describe Image keyword coverage.
 - **Coach** (`test_coach.py`): goals and profile, a full loop that persists across sessions, spaced repetition and plans, weakest-task selection, routines and iCalendar.
 - **Planners** (`test_agent.py`): date/target parsing, rules routing, the verbatim-transcript guardrail, Bedrock message mapping, bearer-token HTTP path, schema cleaning for Nova, fallback, unknown-tool rejection, throttle circuit breaker. **All with stubs, so CI never calls AWS.**
+- **Phoneme scorer** (`test_phoneme_fast.py`, `test_phoneme_model.py`): G2P, ARPAbet mapping, L1 rules, TextGrid parsing, GOP on synthetic posteriors; the real model end to end under `-m slow`.
+- **Pronunciation tools** (`test_pronunciation_tools.py`): audio decoding and limits, the card shape, phone errors → Sound Graph, `assess_pronunciation` and `start_pair_drill` over Streamable HTTP, and the single canonical `l1-vi` pack.
+- **Sound Graph, packs, planner** (`test_memory*.py`, `test_skillpacks.py`, `test_planner.py`): FSRS scheduling, the confusion graph, pack validation and install, the `l1` enum, tier fallback and circuit breakers (Strands stubbed).
 - **End to end** (`test_mcp_http.py`): a real uvicorn server over Streamable HTTP: version negotiation, tool metadata, MCP App and Agent Skill resources, a drill round trip, tool errors, the simulator page and path-traversal guard, the calendar route, and the **official MCP SDK client**.
 
 ## 🚦 Project status & honest limitations
@@ -399,13 +455,18 @@ The suite (verified locally with Python 3.12 before this release; CI runs it on 
 | Area | Status |
 |---|---|
 | MCP server, MCP App, Agent Skill, simulator | ✅ Working; covered by tests and shown in the demo |
-| Offline rules planner (default) | ✅ Working; used in the demo video |
+| Offline rules planner | ✅ Working; answers whenever no model tier is configured, as in the demo video |
+| Phoneme scorer + `assess_pronunciation` | ✅ In `main`, optional install; benchmarked offline on L2-ARCTIC ([results](benchmarks/RESULTS.md)). ⚠️ Not yet reachable from the simulator's mic: its card iframe is sandboxed without microphone permission, so the card falls back to "say it to Alexa" there |
+| Sound Graph (FSRS), L1 packs, `start_pair_drill` | ✅ Working; covered by tests |
+| Strands tiered planner | ⚠️ Local llama.cpp tier smoke-tested on CPU (Qwen2.5-1.5B, [evidence](docs/evidence/local_planner_smoke.json)); Bedrock tier stub-tested only (quota below) |
 | Amazon Bedrock planner (Converse + tool use) | ⚠️ Implemented and unit-tested with stubs. Our Bedrock key authenticates, but on a new account every live call returned `429 Too many tokens per day` (details in [`docs/FRICTION_LOG.md`](docs/FRICTION_LOG.md)). The circuit breaker keeps sessions alive on the offline planner. |
 | Real Alexa+ device | ❌ Not tested: Alexa+ add-on tooling is partner-only, so the experience is simulated in the browser |
 
 Also worth knowing:
 
-- The pronunciation signal comes from **speech-to-text output, not acoustic analysis**.
+- In the simulator's voice loop the pronunciation signal still comes from **speech-to-text output**; acoustic,
+  phone-level scoring is the separate `assess_pronunciation` tool. Its benchmark is one public corpus (L2-ARCTIC,
+  two held-out Vietnamese speakers), not a study with learners.
 - The drill bank is small: **20 original items** (8 Repeat Sentence, 6 Answer Short Question, 4 Read Aloud, 2 Describe Image).
 - Voice input uses the Web Speech API, available in Chromium-based browsers; others fall back to typing.
 
@@ -413,9 +474,10 @@ Also worth knowing:
 
 - [ ] Run live on Amazon Bedrock once the account's daily token quota allows it, and publish the transcript
 - [ ] Deploy behind HTTPS and test with a real Alexa+ MCP host when access opens
-- [ ] Acoustic pronunciation scoring (if the host passes STT confidence or phoneme hints to tools)
+- [x] Acoustic, phone-level pronunciation scoring (`assess_pronunciation`, v0.2.0)
+- [ ] Microphone permission for MCP App iframes in the simulator (`allow="microphone"`), so the card can call `assess_pronunciation` directly
 - [ ] A larger drill bank, plus IELTS and TOEFL task types
-- [ ] More first-language profiles beyond Vietnamese
+- [ ] More first-language packs beyond Vietnamese (the template and validator are ready: `skills/l1-template/`)
 - [ ] Swap SQLite for a managed store (e.g. DynamoDB) for multi-replica deployments
 - [ ] A pilot with Vietnamese learners
 
@@ -426,16 +488,27 @@ Ideas welcome: [open a feature request](https://github.com/ducvuathuduc/speakloo
 ```text
 speakloop/
 ├── speakloop/              # Python package
-│   ├── server.py           #   MCP server: 9 tools, 3 resources, 1 prompt, HTTP routes
+│   ├── server.py           #   MCP server: 15 tools, 5 resources, 1 prompt, HTTP routes
 │   ├── coach.py            #   learner memory, plans, spaced repetition, streaks (SQLite)
-│   ├── scoring.py          #   explainable scorer
+│   ├── scoring.py          #   explainable transcript scorer
+│   ├── phoneme/            #   phone-level scorer: wav2vec2 CTC, espeak G2P, GOP, L1 rules
+│   ├── pronunciation.py    #   assess_pronunciation + start_pair_drill tools
+│   ├── memory.py           #   Sound Graph: FSRS per sound + confusion graph
+│   ├── memory_tools.py     #   get_weak_sounds · next_drill · record_attempt · progress_summary
+│   ├── skillpacks.py       #   L1 pack loader, validator and CLI
+│   ├── planner.py          #   Strands tiered planner with circuit breakers
 │   ├── agent.py            #   planners: rules · Bedrock Converse · OpenAI-compatible + guardrail
 │   ├── content.py          #   20 original drills and bilingual tips
-│   └── ui_card.html        #   the MCP App (ui://speakloop/card.html)
-├── skills/speakloop-coach/ # Agent Skill: SKILL.md + references/
+│   └── ui_card.html        #   the MCP App, built from ui/ (ui://speakloop/card.html)
+├── skills/
+│   ├── speakloop-coach/    # Agent Skill: coaching session flow + references/
+│   ├── l1-vi/              # Vietnamese-L1 sound pack: SKILL.md, pack.json, rules.yaml
+│   └── l1-template/        # start here to add a first language
+├── ui/                     # Preact/Vite source of the MCP App card + vitest
+├── benchmarks/             # L2-ARCTIC evaluation, Whisper baseline, RESULTS.md, LATENCY.md
 ├── web/                    # Alexa+ experience simulator (+ mcp-client.js = mcp-lite-browser)
-├── tests/                  # pytest: unit + Streamable HTTP end to end
-├── scripts/                # seed_demo.py, demo_capture.py, bedrock_smoke.py
+├── tests/                  # pytest: unit + Streamable HTTP end to end (+ slow real-model tests)
+├── scripts/                # seed_demo.py, demo_capture.py, bedrock_smoke.py, local_planner_smoke.py, shoot_cards.py
 ├── docs/                   # ARCHITECTURE, AWS, FRICTION_LOG, PRODUCT_FEEDBACK, FEATURE_REQUESTS, img/
 └── assets/                 # brand kit (brand/), README art (readme/), GIFs, demo video, social preview
 ```
@@ -457,6 +530,16 @@ Contributions are welcome: bug reports, drills, translations, docs and code. Rea
 to get set up, and please follow the [Code of Conduct](CODE_OF_CONDUCT.md). Security issues: see [SECURITY.md](SECURITY.md).
 Release history: [CHANGELOG.md](CHANGELOG.md).
 
+## 💛 Support
+
+SpeakLoop is free and MIT-licensed, built by one student developer. **Sponsorship is not set up yet** (there is no
+GitHub Sponsors profile or other payment link), so for now the best support is:
+
+- ⭐ star the repo and share it with a teacher or learner who could use it;
+- [open an issue](https://github.com/ducvuathuduc/speakloop/issues/new/choose) with a bug, an idea, or a sound your
+  first language makes hard;
+- contribute an L1 pack, drills or translations (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+
 ## 📄 License
 
 [MIT](LICENSE) © 2026 Huỳnh Diệu Thành
@@ -465,7 +548,8 @@ Release history: [CHANGELOG.md](CHANGELOG.md).
 
 - [Model Context Protocol](https://modelcontextprotocol.io) and its [official Python SDK](https://github.com/modelcontextprotocol/python-sdk)
 - The MCP Apps extension (SEP-1865) and the [Agent Skills](https://agentskills.io) format
-- [Amazon Bedrock](https://aws.amazon.com/bedrock/) Converse API and Amazon Nova models
+- [Amazon Bedrock](https://aws.amazon.com/bedrock/) Converse API and Amazon Nova models; [Strands Agents](https://strandsagents.com)
+- [wav2vec2 phoneme models](https://huggingface.co/facebook/wav2vec2-lv-60-espeak-cv-ft) (Meta AI), [eSpeak NG](https://github.com/espeak-ng/espeak-ng), [L2-ARCTIC](https://psi.engr.tamu.edu/l2-arctic-corpus/) (Texas A&M), [FSRS](https://github.com/open-spaced-repetition/py-fsrs), [Preact](https://preactjs.com) and [Vite](https://vite.dev)
 - [Starlette](https://github.com/Kludex/starlette), [Uvicorn](https://github.com/Kludex/uvicorn), [Pydantic](https://docs.pydantic.dev), [HTTPX](https://www.python-httpx.org)
 - [Contributor Covenant](https://www.contributor-covenant.org) for the Code of Conduct
 - Built for *Build, Ship, Shape: Amazon Developer Hackathon 2026* (Alexa+ track)

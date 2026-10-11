@@ -34,7 +34,7 @@ Devpost gallery were rendered from HTML with Chromium using these files and the 
 
 ## Colour
 
-From the card design tokens (`ui/src/tokens.css` on the `feat/ui` branch). One accent, used sparingly.
+From the card design tokens (`ui/src/tokens.css`). One accent, used sparingly.
 
 | Token | Hex | Role | Contrast |
 |---|---|---|---|

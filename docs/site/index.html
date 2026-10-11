@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpeakLoop · Hear the sounds a transcript misses</title>
+<meta name="description" content="Open-source pronunciation coach for Alexa+ via MCP: phone-level scoring, a Sound Graph that remembers which sounds you drop, and minimal-pair drills.">
+<meta property="og:title" content="SpeakLoop · Hear the sounds a transcript misses">
+<meta property="og:description" content="Open-source pronunciation coach for Alexa+ via MCP.">
+<meta property="og:image" content="social-preview.png">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="brand/favicon-32.png" sizes="32x32">
+<style>
+  :root { --bg:#14181E; --surface:#1D232D; --line:#2A313C; --text:#F3F5F8; --muted:#A9B2C0; --accent:#FF8A3D; --accent-ink:#FFA466; --on-accent:#1A1007; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color:var(--accent-ink); }
+  main { max-width: 1040px; margin: 0 auto; padding: 40px 24px 64px; }
+  header { display:flex; align-items:center; gap:14px; }
+  header img { height:40px; }
+  h1 { font-size: clamp(30px, 5vw, 48px); line-height:1.1; margin: 40px 0 12px; }
+  .lede { color:var(--muted); font-size: 20px; max-width: 46ch; margin:0 0 28px; }
+  .cta { display:flex; flex-wrap:wrap; gap:12px; margin-bottom: 40px; }
+  .btn { display:inline-block; padding: 12px 20px; border-radius: 12px; text-decoration:none; font-weight:700; border:1px solid var(--line); color:var(--text); }
+  .btn.primary { background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
+  .hero { width:100%; border-radius:16px; border:1px solid var(--line); display:block; }
+  section { margin-top: 56px; }
+  h2 { font-size: 26px; margin: 0 0 12px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding: 16px; }
+  .card img { width:100%; border-radius:10px; display:block; }
+  .card p { margin: 10px 2px 2px; color:var(--muted); font-size:15px; }
+  table { width:100%; border-collapse: collapse; font-size: 16px; }
+  th, td { text-align:left; padding: 10px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight:600; }
+  tr.us td { color: var(--text); font-weight:700; }
+  .note { color:var(--muted); font-size:15px; }
+  footer { margin-top: 64px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <header><img src="brand/lockup-dark.svg" alt="SpeakLoop"></header>
+
+  <h1>Hear the sounds a transcript misses.</h1>
+  <p class="lede">An open-source English pronunciation coach for Alexa+, built on MCP. It scores every sound you say,
+    remembers which ones you keep dropping, and drills them tomorrow.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/ducvuathuduc/speakloop#-quickstart">Run it locally</a>
+    <a class="btn" href="card/?fixture=assessment">Try the card (demo data)</a>
+    <a class="btn" href="https://github.com/ducvuathuduc/speakloop">GitHub</a>
+  </div>
+  <img class="hero" src="hero.png" alt="A card comparing what a typical assistant hears with what SpeakLoop hears, flagging the missing /t/ in 'walked'.">
+
+  <section>
+    <h2>Benchmark</h2>
+    <p class="note">L2-ARCTIC, Vietnamese speakers; the same 100 held-out utterances (3,200 phones, 794 mispronounced).
+      Thresholds were tuned on separate dev speakers only.</p>
+    <table>
+      <tr><th>System</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+      <tr><td>Whisper-small transcript diff (baseline)</td><td>0.62</td><td>0.22</td><td>0.32</td></tr>
+      <tr class="us"><td>SpeakLoop phoneme scorer (default)</td><td>0.59</td><td>0.53</td><td>0.56</td></tr>
+    </table>
+    <p class="note">The cost: more false alarms on correctly said phones (12.3 % vs 4.5 %).
+      <a href="https://github.com/ducvuathuduc/speakloop/blob/main/benchmarks/RESULTS.md">Method and per-error breakdown</a>.</p>
+  </section>
+
+  <section>
+    <h2>The cards</h2>
+    <p class="note">Screens of the MCP App card rendering demo data. Open any of them live:
+      <a href="card/?fixture=assessment">assessment</a> ·
+      <a href="card/?fixture=karaoke">every sound</a> ·
+      <a href="card/?fixture=drill">minimal pairs</a> ·
+      <a href="card/?fixture=rings">weak sounds</a> ·
+      <a href="card/?fixture=plan">plan</a>.</p>
+    <div class="grid">
+      <div class="card"><img src="screens/karaoke-dark-1280x800.png" alt="Every phone of the sentence, marked heard, changed or missing"><p>Every sound you said, synced to your recording.</p></div>
+      <div class="card"><img src="screens/drill-dark-1280x800.png" alt="Minimal-pair drill card: walk versus walked"><p>A minimal-pair drill for the sound you dropped.</p></div>
+      <div class="card"><img src="screens/rings-dark-1280x800.png" alt="Three weak-sound rings with mastery this week"><p>Weak sounds, tracked across days with FSRS.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Honest status</h2>
+    <p class="note">Alexa+ add-on tooling is partner-only, so SpeakLoop runs in a browser simulator that is a real MCP
+      client. The phone-level scorer is an optional install (open wav2vec2 weights, ~1.2 GB) and is not yet reachable
+      from the simulator's microphone. Details in the
+      <a href="https://github.com/ducvuathuduc/speakloop#-project-status--honest-limitations">README</a>.</p>
+  </section>
+
+  <footer>MIT licensed · Built for <i>Build, Ship, Shape: Amazon Developer Hackathon 2026</i> (Alexa+ track) · Made in Ho Chi Minh City</footer>
+</main>
+</body>
+</html>
