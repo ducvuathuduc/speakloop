@@ -24,11 +24,11 @@ type Shot = { at: number; fx: number; fy: number; k: number; len: number };
 // camera keyframes: eased from the previous shot over `len` frames ending at `at`
 const SHOTS: Shot[] = [
   { at: 0, fx: 384, fy: 240, k: 1, len: 1 },
-  { at: 150, fx: 300, fy: 300, k: 1.12, len: 60 },
-  { at: 200, fx: 384, fy: 240, k: 1, len: 14 },
+  { at: 176, fx: 300, fy: 300, k: 1.12, len: 56 },
+  { at: 206, fx: 384, fy: 240, k: 1, len: 14 },
   { at: 252, fx: 567, fy: 230, k: 1.42, len: 40 },
   { at: 330, fx: 384, fy: 240, k: 1, len: 28 },
-  { at: 392, fx: 384, fy: 250, k: 1.3, len: 30 },
+  { at: 392, fx: 384, fy: 300, k: 1.2, len: 30 },
   { at: 476, fx: 384, fy: 240, k: 1, len: 16 },
   { at: 520, fx: 430, fy: 330, k: 1.22, len: 36 },
 ];
@@ -157,7 +157,7 @@ export const Real: React.FC<{ dur: number }> = ({ dur }) => {
   const cursorO = fade(f, 40, 8) * (1 - ramp(f, 580, 592));
   return (
     <Scene dur={dur}>
-      <div style={{ position: "absolute", top: 34, left: 0, right: 0, textAlign: "center", fontSize: 54, fontWeight: 700, letterSpacing: "-0.02em", opacity: 1 - ramp(f, 140, 156) }}>
+      <div style={{ position: "absolute", top: 34, left: 0, right: 0, textAlign: "center", fontSize: 54, fontWeight: 700, letterSpacing: "-0.02em", opacity: 1 - ramp(f, 100, 116) }}>
         <MaskWords text="The real card. Real speed." at={2} base={2} colors={{ 1: C.accent }} />
       </div>
       <div

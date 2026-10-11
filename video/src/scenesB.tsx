@@ -145,7 +145,7 @@ export const Proof: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vert
         <div style={{ fontSize: 44, fontWeight: 700, marginTop: 18 }}>
           <MaskWords text="more real errors caught" at={246} base={2} />
         </div>
-        <div style={{ fontSize: 34, color: C.text, marginTop: 20, fontWeight: 600, opacity: fade(f, 276, 10) }}>at similar precision <span style={{ color: C.text2 }}>(0.59 vs 0.62)</span></div>
+        <div style={{ fontSize: 34, color: C.text, marginTop: 20, fontWeight: 600, opacity: fade(f, 276, 10) }}>at similar precision<br /><span style={{ color: C.text2 }}>(0.59 vs 0.62)</span></div>
       </div>
       <div
         style={{
