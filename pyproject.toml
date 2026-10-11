@@ -1,14 +1,16 @@
 [project]
 name = "speakloop"
-version = "0.1.0"
+version = "0.2.0"
 description = "Alexa+ English speaking coach: MCP server (2025-11-25, Streamable HTTP) with MCP Apps and an Agent Skill"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
-dependencies = ["mcp==2.3.0", "uvicorn>=0.30", "starlette>=0.40", "pydantic>=2.7", "httpx>=0.27", "fsrs>=6.0,<7"]
+dependencies = ["mcp==2.3.0", "uvicorn>=0.30", "starlette>=0.40", "pydantic>=2.7", "httpx>=0.27", "fsrs>=6.0,<7", "numpy>=1.26", "pyyaml>=6,<7"]
 
 [project.optional-dependencies]
 bedrock = ["boto3>=1.34"]
+# Phoneme scorer (assess_pronunciation). Also needs the espeak-ng binary.
+phoneme = ["torch>=2.2", "transformers>=4.40", "soundfile>=0.12", "scipy>=1.11"]
 # Strands Agents planner (planner.py). strands-agents 1.59 pins mcp<2.2 while SpeakLoop needs
 # mcp==2.3.0, so a plain `pip install .[agent]` cannot resolve (pip may backtrack to the empty
 # 0.0.1 placeholder). Install: pip install -r requirements-agent.txt && pip install --no-deps "strands-agents==1.59.0"

@@ -1,0 +1,13 @@
+# Phoneme scorer (speakloop/phoneme, MCP tool assess_pronunciation).
+# Also needs the espeak-ng binary for G2P:  sudo apt-get install espeak-ng  (macOS: brew install espeak-ng)
+#
+# CPU-only torch keeps the install small:
+#   pip install -r requirements.txt
+#   pip install --index-url https://download.pytorch.org/whl/cpu torch
+#   pip install -r requirements-phoneme.txt
+# Weights (~1.2 GB, facebook/wav2vec2-lv-60-espeak-cv-ft) download on first use, or ahead
+# of time with: python -m speakloop.phoneme.download
+torch>=2.2
+transformers>=4.40
+soundfile>=0.12
+scipy>=1.11

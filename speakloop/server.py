@@ -4,6 +4,9 @@ Run:  python -m speakloop.server   (defaults to http://127.0.0.1:8765)
 
 Exposes:
   * 9 tools for an Alexa+-style voice coaching session (stateful per learner)
+  * 4 Sound Graph tools (FSRS memory per sound) and 2 pronunciation tools
+    (assess_pronunciation: phone-level scoring of a WAV; start_pair_drill: minimal pairs)
+  * skill://l1-<code>/...      - installed L1 sound packs (Agent Skills), e.g. l1-vi
   * ui://speakloop/card.html   - an MCP App (text/html;profile=mcp-app) every tool renders into
   * skill://speakloop-coach/... - the Agent Skill (SKILL.md + reference) served as resources
   * /            - the Alexa+ experience simulator (a browser MCP client)
@@ -30,6 +33,7 @@ from .coach import Coach
 from .content import FEATURE_TIPS, TASK_LABELS
 from .memory import SoundGraph
 from .memory_tools import register as register_memory_tools
+from .pronunciation import register as register_pronunciation_tools
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = ROOT / "web"
@@ -49,7 +53,7 @@ mcp = MCPServer(
         "(resource skill://speakloop-coach/SKILL.md) for the session flow. Every tool result has a "
         "'speech' field meant to be spoken aloud and renders into the ui://speakloop/card.html MCP App."
     ),
-    version="0.1.0",
+    version="0.2.0",
 )
 
 LearnerId = Annotated[str, Field(description="Stable id of the learner (e.g. the household profile id).")]
@@ -258,6 +262,7 @@ def set_practice_routine(
 # ------------------------------------------------- Sound Graph (FSRS) memory tools + L1 packs
 sound_graph = SoundGraph(os.environ.get("SPEAKLOOP_DB", str(ROOT / "speakloop.db")))
 register_memory_tools(mcp, sound_graph, meta=UI_META)
+register_pronunciation_tools(mcp, sound_graph, meta=UI_META)
 
 
 # ------------------------------------------------------------------------ resources

@@ -14,6 +14,10 @@
 #   word_regex    Python regex on the lowercase written word
 #   not_word_regex
 #
+# `sound:` (optional) links a rule to a sound node id in pack.json (the learner's
+# Sound Graph), either one id or a map keyed by the expected phone ("*" = any other).
+# That is how a finding from assess_pronunciation becomes a drill in start_pair_drill.
+#
 # Sources for the patterns (not for the wording):
 #   Honey, P. J. (1981) "Vietnamese speakers", ERIC ED208681 (no clusters, unreleased finals)
 #   Avery & Ehrlich (1992) Teaching American English Pronunciation, ch. on Vietnamese
@@ -23,6 +27,7 @@ l1: vi
 name: Vietnamese L1 transfer patterns
 rules:
   - id: VN-ED-DROP
+    sound: {t: ed_t_after_voiceless, d: ed_d_after_voiced}
     category: endings
     when:
       error_type: [deletion]
@@ -46,6 +51,7 @@ rules:
     tip_vi: "Từ tận cùng t/d thì -ed thêm một âm tiết: wanted = want-id."
 
   - id: VN-S-DROP
+    sound: plural_s
     category: endings
     when:
       error_type: [deletion]
@@ -59,6 +65,7 @@ rules:
     tip_vi: "Giữ hơi /s/ hoặc rung /z/ ở cuối: books /s/, dogs /z/."
 
   - id: VN-CLUSTER-REDUCTION
+    sound: coda_cluster
     category: clusters
     when:
       error_type: [deletion]
@@ -70,6 +77,7 @@ rules:
     tip_vi: "Đọc đủ từng phụ âm trong cụm, chậm trước rồi nhanh dần: mo-s-t → most."
 
   - id: VN-FINAL-CONSONANT-DROP
+    sound: {l: final_l, p: final_stop, b: final_stop, t: final_stop, d: final_stop, k: final_stop, ɡ: final_stop}
     category: final_consonants
     when:
       error_type: [deletion]
@@ -81,6 +89,7 @@ rules:
     tip_vi: "Bật âm cuối ra, để một chút hơi thoát ra ở cuối từ."
 
   - id: VN-TH-STOP
+    sound: th_voiceless
     category: th
     when:
       error_type: [substitution]
@@ -92,6 +101,7 @@ rules:
     tip_vi: "Đặt đầu lưỡi giữa hai hàm răng rồi thổi hơi: th-ink."
 
   - id: VN-DH-STOP
+    sound: th_voiced
     category: th
     when:
       error_type: [substitution]
@@ -103,6 +113,7 @@ rules:
     tip_vi: "Lưỡi giữa hai răng và rung dây thanh: th-is."
 
   - id: VN-SH-S
+    sound: {ʃ: sh_s}
     category: sibilants
     when:
       error_type: [substitution]
@@ -125,6 +136,7 @@ rules:
     tip_vi: "Bắt đầu bằng t/d ngắn rồi bật sang sh: t-sh = ch."
 
   - id: VN-FINAL-DEVOICING
+    sound: {z: z_devoicing}
     category: final_consonants
     when:
       error_type: [substitution]

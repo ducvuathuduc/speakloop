@@ -14,7 +14,7 @@ import yaml
 from .g2p import is_vowel
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_RULES = REPO_ROOT / "skills" / "speakloop-l1-vietnamese" / "rules.yaml"
+DEFAULT_RULES = REPO_ROOT / "skills" / "l1-vi" / "rules.yaml"
 
 
 @dataclass
@@ -43,6 +43,7 @@ class Rule:
     tip_en: str = ""
     tip_vi: str = ""
     experimental: bool = False
+    sound: str | dict[str, str] | None = None  # Sound Graph node id(s) in the pack's pack.json
     _re: Any = field(default=None, repr=False)
     _not_re: Any = field(default=None, repr=False)
 
@@ -74,6 +75,12 @@ class Rule:
             return False
         return True
 
+    def sound_for(self, expected: str | None) -> str | None:
+        """Sound Graph node for this rule, resolved by the expected phone when ``sound`` is a map."""
+        if isinstance(self.sound, dict):
+            return self.sound.get(expected or "", self.sound.get("*"))
+        return self.sound or None
+
 
 @functools.lru_cache(maxsize=8)
 def load_rules(path: str | os.PathLike | None = None) -> tuple[Rule, ...]:
@@ -87,6 +94,7 @@ def load_rules(path: str | os.PathLike | None = None) -> tuple[Rule, ...]:
             description_en=r.get("description_en", ""), description_vi=r.get("description_vi", ""),
             tip_en=r.get("tip_en", ""), tip_vi=r.get("tip_vi", ""),
             experimental=bool(r.get("experimental", False)),
+            sound=r.get("sound"),
         )
         if "word_regex" in when:
             rule._re = re.compile(when.pop("word_regex"))
@@ -133,6 +141,7 @@ def apply_rules(events: list[Event], rules: tuple[Rule, ...]) -> list[dict]:
                     "start": ev.start,
                     "end": ev.end,
                     "experimental": rule.experimental,
+                    "sound_id": rule.sound_for(ev.expected),
                 })
                 break
     return findings
