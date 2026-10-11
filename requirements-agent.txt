@@ -1,0 +1,23 @@
+# Optional: the Strands Agents tiered planner (speakloop/planner.py).
+#
+# strands-agents 1.59 pins mcp<2.2, but SpeakLoop needs mcp==2.3.0 (the planner only uses
+# strands' Agent/BedrockModel/LlamaCppModel, never strands' own MCP client, and works with 2.3).
+# So strands-agents itself must be installed WITHOUT dependency resolution:
+#
+#     pip install -r requirements.txt
+#     pip install -r requirements-agent.txt              # strands' runtime deps (resolvable)
+#     pip install --no-deps "strands-agents==1.59.0"     # the SDK itself
+#
+# Always pin the version: when resolution is on, pip can backtrack to strands-agents 0.0.1,
+# an empty placeholder upload, and "succeed" with no `strands` module at all.
+# Without strands the server still runs: the planner skips the model tiers and uses rules.
+boto3>=1.26,<2
+botocore>=1.29,<2
+docstring-parser>=0.15,<1.0
+jsonschema>=4,<5
+opentelemetry-api>=1.30,<2
+opentelemetry-sdk>=1.30,<2
+opentelemetry-instrumentation-threading>=0.51b0,<1.00b0
+pyyaml>=6,<7
+typing-extensions>=4.13.2,<5
+watchdog>=6,<7

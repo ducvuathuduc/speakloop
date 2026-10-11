@@ -1,0 +1,29 @@
+{
+  "schema": "speakloop.l1-pack/v1",
+  "id": "l1-xx",
+  "l1": "xx",
+  "l1_name": "<Language>",
+  "target_language": "en-US",
+  "version": "0.1.0",
+  "license": "MIT",
+  "authors": ["<your name>"],
+  "sources": ["<paper, textbook or teacher experience that documents these patterns>"],
+  "sounds": [
+    {
+      "id": "example_sound",
+      "label": "Short human label",
+      "ipa": "θ",
+      "category": "th",
+      "why_l1": "One sentence: why the learner's first language makes this hard.",
+      "tip_en": "One mouth-position tip in English.",
+      "tip_l1": "The same tip in the learner's language.",
+      "speech_hint": "the soft T H sound",
+      "detect": [{"op": "substitute", "target": "θ", "realized": "t", "position": "any"}],
+      "drills": {
+        "minimal_pairs": [["think", "tink"], ["three", "tree"]],
+        "words": ["think", "three"],
+        "sentences": ["I think three is enough."]
+      }
+    }
+  ]
+}

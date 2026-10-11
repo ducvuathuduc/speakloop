@@ -1,0 +1,246 @@
+{
+  "schema": "speakloop.l1-pack/v1",
+  "id": "l1-vi",
+  "l1": "vi",
+  "l1_name": "Vietnamese",
+  "target_language": "en-US",
+  "version": "1.0.0",
+  "license": "MIT",
+  "authors": ["SpeakLoop contributors"],
+  "sources": [
+    "ERIC ED208681, 'English pronunciation problems of Vietnamese speakers' (final consonants, clusters)",
+    "ICHUSO 2019 paper 034, error taxonomy: deletion, epenthesis, devoicing, omission+epenthesis"
+  ],
+  "sounds": [
+    {
+      "id": "ed_t_after_voiceless",
+      "label": "-ed said as /t/ after a voiceless sound",
+      "ipa": "t",
+      "category": "final_ed",
+      "why_l1": "Vietnamese syllables end in a few unreleased consonants and never in a cluster, so the /t/ added by -ed after /k p s ʃ tʃ f/ is easy to drop.",
+      "tip_en": "Hold the last sound, then release a short, crisp T: walk-T.",
+      "tip_l1": "Giữ âm cuối rồi bật nhẹ một âm T ngắn: walk-T. Đừng nuốt mất âm T.",
+      "speech_hint": "the T sound at the end",
+      "detect": [
+        {"op": "delete", "target": "t", "position": "coda", "after_class": "voiceless", "morpheme": "-ed"}
+      ],
+      "drills": {
+        "minimal_pairs": [["walked", "walk"], ["picked", "pick"], ["looked", "look"], ["asked", "ask"], ["helped", "help"], ["washed", "wash"]],
+        "words": ["walked", "picked", "looked", "asked", "helped", "washed", "stopped", "missed"],
+        "sentences": ["She walked to the shops yesterday.", "We looked everywhere and asked for help."]
+      }
+    },
+    {
+      "id": "ed_d_after_voiced",
+      "label": "-ed said as /d/ after a voiced sound",
+      "ipa": "d",
+      "category": "final_ed",
+      "why_l1": "A voiced /d/ never ends a Vietnamese syllable, so it is dropped or devoiced to an unreleased /t/.",
+      "tip_en": "Keep your voice on through the final D: move-D.",
+      "tip_l1": "Giữ rung dây thanh đến hết âm D cuối: move-D.",
+      "speech_hint": "the D sound at the end",
+      "detect": [
+        {"op": "delete", "target": "d", "position": "coda", "after_class": "voiced", "morpheme": "-ed"},
+        {"op": "substitute", "target": "d", "realized": "t", "position": "coda", "morpheme": "-ed"}
+      ],
+      "drills": {
+        "minimal_pairs": [["moved", "move"], ["played", "play"], ["called", "call"], ["planned", "plan"]],
+        "words": ["moved", "played", "called", "planned", "lived", "cleaned"],
+        "sentences": ["They moved here and played football all summer."]
+      }
+    },
+    {
+      "id": "plural_s",
+      "label": "Plural and third-person -s",
+      "ipa": "s",
+      "category": "final_s",
+      "why_l1": "Vietnamese marks plural and person with separate words, not endings, so the final -s/-z carries no meaning for the ear and gets dropped.",
+      "tip_en": "Finish the word with a clear hiss: book-S, need-Z.",
+      "tip_l1": "Kết thúc từ bằng một tiếng xì rõ: book-S, need-Z.",
+      "speech_hint": "the S sound at the end",
+      "detect": [
+        {"op": "delete", "target": "s", "position": "coda", "morpheme": "-s"},
+        {"op": "delete", "target": "z", "position": "coda", "morpheme": "-s"}
+      ],
+      "drills": {
+        "minimal_pairs": [["books", "book"], ["needs", "need"], ["works", "work"], ["cats", "cat"]],
+        "words": ["books", "needs", "works", "cats", "dogs", "makes"],
+        "sentences": ["She needs two books and works on weekends."]
+      }
+    },
+    {
+      "id": "th_voiceless",
+      "label": "Voiceless TH /θ/",
+      "ipa": "θ",
+      "category": "th",
+      "why_l1": "Vietnamese has no /θ/; the closest sounds are /t/ (written th in Vietnamese, aspirated) and /s/.",
+      "tip_en": "Put your tongue tip lightly between your teeth and blow air: th-ink.",
+      "tip_l1": "Đặt đầu lưỡi nhẹ giữa hai hàm răng rồi thổi hơi ra: th-ink. Không phải 'th' tiếng Việt.",
+      "speech_hint": "the soft T H sound",
+      "detect": [
+        {"op": "substitute", "target": "θ", "realized": "t", "position": "any"},
+        {"op": "substitute", "target": "θ", "realized": "s", "position": "any"},
+        {"op": "substitute", "target": "θ", "realized": "f", "position": "any"}
+      ],
+      "drills": {
+        "minimal_pairs": [["think", "tink"], ["three", "tree"], ["thank", "tank"], ["path", "pass"], ["thin", "sin"]],
+        "words": ["think", "three", "thank", "both", "month", "health"],
+        "sentences": ["I think three months is enough."]
+      }
+    },
+    {
+      "id": "th_voiced",
+      "label": "Voiced TH /ð/",
+      "ipa": "ð",
+      "category": "th",
+      "why_l1": "Vietnamese has no /ð/; learners substitute /d/ or /z/.",
+      "tip_en": "Same tongue position as think, but turn your voice on: the, this.",
+      "tip_l1": "Lưỡi đặt giống như 'think' nhưng rung dây thanh: the, this.",
+      "speech_hint": "the buzzing T H sound",
+      "detect": [
+        {"op": "substitute", "target": "ð", "realized": "d", "position": "any"},
+        {"op": "substitute", "target": "ð", "realized": "z", "position": "any"}
+      ],
+      "drills": {
+        "minimal_pairs": [["this", "dis"], ["they", "day"], ["then", "den"], ["breathe", "breeze"]],
+        "words": ["the", "this", "they", "mother", "other", "weather"],
+        "sentences": ["They said this weather is better than the other day."]
+      }
+    },
+    {
+      "id": "coda_cluster",
+      "label": "Final consonant clusters",
+      "ipa": "st",
+      "category": "clusters",
+      "why_l1": "Vietnamese syllables never end in two consonants, so learners keep one and drop the rest.",
+      "tip_en": "Say every consonant at the end, slowly at first: mo-s-t.",
+      "tip_l1": "Đọc đủ từng phụ âm cuối, lúc đầu chậm: mo-s-t.",
+      "speech_hint": "both sounds at the end",
+      "detect": [
+        {"op": "delete", "target": "t", "position": "coda", "after_class": "consonant"},
+        {"op": "delete", "target": "k", "position": "coda", "after_class": "consonant"},
+        {"op": "delete", "target": "s", "position": "coda", "after_class": "consonant"}
+      ],
+      "drills": {
+        "minimal_pairs": [["most", "mos"], ["desk", "dess"], ["tests", "tess"], ["fact", "fac"]],
+        "words": ["most", "desk", "tests", "fact", "first", "next"],
+        "sentences": ["Most students passed the first test."]
+      }
+    },
+    {
+      "id": "onset_cluster",
+      "label": "Starting consonant clusters",
+      "ipa": "st",
+      "category": "clusters",
+      "why_l1": "Vietnamese syllables start with one consonant, so learners insert a vowel inside clusters (s-treet) or drop one consonant.",
+      "tip_en": "Glide straight from S into the next sound, no vowel in between: street.",
+      "tip_l1": "Lướt thẳng từ S sang âm sau, không chêm nguyên âm: street, không phải 'sơ-trít'.",
+      "speech_hint": "the cluster at the start",
+      "detect": [
+        {"op": "insert", "realized": "ə", "position": "onset"},
+        {"op": "delete", "target": "s", "position": "onset", "before_class": "consonant"}
+      ],
+      "drills": {
+        "minimal_pairs": [["sport", "support"], ["play", "pay"], ["blow", "below"], ["street", "treat"]],
+        "words": ["street", "spring", "school", "play", "student", "strong"],
+        "sentences": ["The students play sport in the street every spring."]
+      }
+    },
+    {
+      "id": "final_stop",
+      "label": "Final stop consonants /p t k b d g/",
+      "ipa": "k",
+      "category": "final_consonant",
+      "why_l1": "Vietnamese final stops are unreleased, so English final stops are often not heard at all.",
+      "tip_en": "Release the last consonant with a small puff of air: wee-K.",
+      "tip_l1": "Bật nhẹ phụ âm cuối với một luồng hơi nhỏ: wee-K.",
+      "speech_hint": "the last consonant",
+      "detect": [
+        {"op": "delete", "target": "k", "position": "coda"},
+        {"op": "delete", "target": "t", "position": "coda"},
+        {"op": "delete", "target": "p", "position": "coda"},
+        {"op": "delete", "target": "b", "position": "coda"},
+        {"op": "delete", "target": "d", "position": "coda"},
+        {"op": "delete", "target": "g", "position": "coda"}
+      ],
+      "drills": {
+        "minimal_pairs": [["week", "wee"], ["light", "lie"], ["cup", "cuh"], ["bed", "beh"]],
+        "words": ["week", "light", "cup", "bed", "bag", "job"],
+        "sentences": ["Next week I need a big bag for my job."]
+      }
+    },
+    {
+      "id": "final_l",
+      "label": "Final L",
+      "ipa": "l",
+      "category": "final_consonant",
+      "why_l1": "Vietnamese has no syllable-final /l/; learners drop it or turn it into a vowel or /n/.",
+      "tip_en": "Touch the tongue tip to the ridge behind your top teeth at the end: hal-L.",
+      "tip_l1": "Cuối từ chạm đầu lưỡi lên lợi sau răng trên: hal-L.",
+      "speech_hint": "the L sound at the end",
+      "detect": [
+        {"op": "delete", "target": "l", "position": "coda"},
+        {"op": "substitute", "target": "l", "realized": "n", "position": "coda"}
+      ],
+      "drills": {
+        "minimal_pairs": [["hall", "haw"], ["feel", "fee"], ["bill", "bin"], ["school", "scoo"]],
+        "words": ["hall", "feel", "bill", "school", "full", "careful"],
+        "sentences": ["I feel careful in the school hall."]
+      }
+    },
+    {
+      "id": "sh_s",
+      "label": "SH /ʃ/ versus S /s/",
+      "ipa": "ʃ",
+      "category": "fricatives",
+      "why_l1": "Many Vietnamese speakers (especially southern) merge s and x, so English /ʃ/ and /s/ blur together.",
+      "tip_en": "Round your lips and pull the tongue back a little for SH: she, not see.",
+      "tip_l1": "Tròn môi và kéo lưỡi lùi vào một chút cho âm SH: she, không phải see.",
+      "speech_hint": "the S H sound",
+      "detect": [
+        {"op": "substitute", "target": "ʃ", "realized": "s", "position": "any"}
+      ],
+      "drills": {
+        "minimal_pairs": [["she", "see"], ["ship", "sip"], ["shoe", "sue"], ["wish", "wiss"]],
+        "words": ["she", "ship", "shop", "wish", "fashion", "station"],
+        "sentences": ["She went shopping at the station."]
+      }
+    },
+    {
+      "id": "z_devoicing",
+      "label": "Z /z/ said as S",
+      "ipa": "z",
+      "category": "fricatives",
+      "why_l1": "Southern Vietnamese has no /z/ (d and gi are said as /j/), so /z/ is devoiced to /s/.",
+      "tip_en": "Make it buzz: put a hand on your throat and feel it vibrate on Z.",
+      "tip_l1": "Làm cho nó rung: đặt tay lên cổ họng, cảm thấy rung khi nói Z.",
+      "speech_hint": "the buzzing Z sound",
+      "detect": [
+        {"op": "substitute", "target": "z", "realized": "s", "position": "any"}
+      ],
+      "drills": {
+        "minimal_pairs": [["zoo", "sue"], ["rise", "rice"], ["prize", "price"], ["eyes", "ice"]],
+        "words": ["zoo", "rise", "prize", "eyes", "lazy", "easy"],
+        "sentences": ["It is easy to win a prize at the zoo."]
+      }
+    },
+    {
+      "id": "initial_p",
+      "label": "Initial P /p/",
+      "ipa": "p",
+      "category": "stops",
+      "why_l1": "Native Vietnamese words do not start with /p/ (it appears mostly in loanwords), so learners voice it to /b/.",
+      "tip_en": "Build up air behind your lips and pop it out: P-en. Hold paper in front of your mouth; it should move.",
+      "tip_l1": "Dồn hơi sau hai môi rồi bật ra: P-en. Để tờ giấy trước miệng, tờ giấy phải rung.",
+      "speech_hint": "the P sound at the start",
+      "detect": [
+        {"op": "substitute", "target": "p", "realized": "b", "position": "onset"}
+      ],
+      "drills": {
+        "minimal_pairs": [["pen", "ben"], ["pear", "bear"], ["pie", "buy"], ["pack", "back"]],
+        "words": ["pen", "pear", "people", "park", "price", "paper"],
+        "sentences": ["People pay a fair price for paper in the park."]
+      }
+    }
+  ]
+}

@@ -28,6 +28,8 @@ from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from . import agent as agent_mod
 from .coach import Coach
 from .content import FEATURE_TIPS, TASK_LABELS
+from .memory import SoundGraph
+from .memory_tools import register as register_memory_tools
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = ROOT / "web"
@@ -253,6 +255,11 @@ def set_practice_routine(
     return _result("routine", f"Done — I'll remind you at {r['time_local']} {every} for {r['minutes']} minutes.", r, learner_id)
 
 
+# ------------------------------------------------- Sound Graph (FSRS) memory tools + L1 packs
+sound_graph = SoundGraph(os.environ.get("SPEAKLOOP_DB", str(ROOT / "speakloop.db")))
+register_memory_tools(mcp, sound_graph, meta=UI_META)
+
+
 # ------------------------------------------------------------------------ resources
 @mcp.resource(CARD_URI, name="speakloop-card", title="SpeakLoop card (MCP App)", mime_type=CARD_MIME,
               description="Interactive card that renders every SpeakLoop tool result.")
@@ -305,7 +312,9 @@ async def calendar(request: Request) -> Response:
 
 @mcp.custom_route("/healthz", methods=["GET"], include_in_schema=False)
 async def healthz(_: Request) -> Response:
-    return JSONResponse({"ok": True, "llm_provider": agent_mod.provider_name()})
+    from . import planner as planner_mod
+
+    return JSONResponse({"ok": True, "llm_provider": agent_mod.provider_name(), "planner": planner_mod.status()})
 
 
 @mcp.custom_route("/agent/step", methods=["POST"], include_in_schema=False)

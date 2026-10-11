@@ -1,0 +1,68 @@
+{
+  "model": "qwen2.5-1.5b-instruct-q4_k_m",
+  "server": "llama.cpp llama-server b11552 (CPU, 2 threads)",
+  "runs": [
+    {
+      "utterance": "How am I doing this week?",
+      "decision": {
+        "type": "tool_call",
+        "name": "progress_report",
+        "arguments": {
+          "learner_id": "demo"
+        },
+        "text": null,
+        "provider": "strands:local"
+      },
+      "trace": [
+        {
+          "tier": "local",
+          "ok": true,
+          "ms": 20925
+        }
+      ],
+      "seconds": 50.3
+    },
+    {
+      "utterance": "Which sound should I practise now?",
+      "decision": {
+        "type": "tool_call",
+        "name": "next_drill",
+        "arguments": {
+          "learner_id": "demo",
+          "l1": "English"
+        },
+        "text": null,
+        "provider": "strands:local"
+      },
+      "trace": [
+        {
+          "tier": "local",
+          "ok": true,
+          "ms": 3770
+        }
+      ],
+      "seconds": 3.8
+    },
+    {
+      "utterance": "I have 10 minutes, let's practise.",
+      "decision": {
+        "type": "tool_call",
+        "name": "plan_today_session",
+        "arguments": {
+          "learner_id": "demo",
+          "minutes": 10
+        },
+        "text": null,
+        "provider": "strands:local"
+      },
+      "trace": [
+        {
+          "tier": "local",
+          "ok": true,
+          "ms": 3275
+        }
+      ],
+      "seconds": 3.3
+    }
+  ]
+}
