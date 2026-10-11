@@ -1,0 +1,180 @@
+# SpeakLoop L1 rule pack: Vietnamese speakers of English.
+#
+# Each rule turns a raw phone-level event from the scorer into a teachable
+# finding. Rules are tried in order; the first rule that matches an event wins
+# (one finding per event). Phones are espeak-style IPA as emitted by
+# speakloop.phoneme (t d k s z θ ð ʃ iː ɪ ...).
+#
+# Event fields a rule can test (all optional; lists mean "any of"):
+#   error_type    deletion | substitution | insertion | stress
+#   expected      canonical phone(s)
+#   heard         recognised phone(s); for deletions heard is null
+#   position      word_final | word_initial | word_medial
+#   in_cluster    true if the phone sits next to another consonant in the word
+#   word_regex    Python regex on the lowercase written word
+#   not_word_regex
+#
+# Sources for the patterns (not for the wording):
+#   Honey, P. J. (1981) "Vietnamese speakers", ERIC ED208681 (no clusters, unreleased finals)
+#   Avery & Ehrlich (1992) Teaching American English Pronunciation, ch. on Vietnamese
+#   Nguyen & Ingram (2005) stress production of Vietnamese EFL learners
+version: 1
+l1: vi
+name: Vietnamese L1 transfer patterns
+rules:
+  - id: VN-ED-DROP
+    category: endings
+    when:
+      error_type: [deletion]
+      expected: [t, d]
+      position: word_final
+      word_regex: "ed$"
+    description_en: "The past-tense -ed ending was dropped."
+    description_vi: "Bạn bỏ mất đuôi -ed (thì quá khứ)."
+    tip_en: "Finish the word: after a voiceless sound, -ed is a short /t/ (walked = walk-t)."
+    tip_vi: "Bật nhẹ âm cuối: sau âm vô thanh, -ed đọc là /t/ (walked = walk-t)."
+
+  - id: VN-ED-DROP-SYLLABLE
+    category: endings
+    when:
+      error_type: [deletion]
+      expected: [ɪ, ᵻ, ə]
+      word_regex: "[td]ed$"
+    description_en: "The extra syllable in -ted/-ded was dropped."
+    description_vi: "Bạn bỏ mất âm tiết /ɪd/ của đuôi -ted/-ded."
+    tip_en: "Words ending in t or d add a syllable: wanted = want-id."
+    tip_vi: "Từ tận cùng t/d thì -ed thêm một âm tiết: wanted = want-id."
+
+  - id: VN-S-DROP
+    category: endings
+    when:
+      error_type: [deletion]
+      expected: [s, z]
+      position: word_final
+      word_regex: "(s|es|'s)$"
+      not_word_regex: "(ss|us|is|ous|this|yes|was|has|his|its)$"
+    description_en: "The -s ending (plural, -s verb or 's) was dropped."
+    description_vi: "Bạn bỏ mất đuôi -s (số nhiều, động từ ngôi thứ ba, hoặc 's)."
+    tip_en: "Hold the hiss or buzz at the end: books /s/, dogs /z/."
+    tip_vi: "Giữ hơi /s/ hoặc rung /z/ ở cuối: books /s/, dogs /z/."
+
+  - id: VN-CLUSTER-REDUCTION
+    category: clusters
+    when:
+      error_type: [deletion]
+      expected: [p, b, t, d, k, ɡ, f, v, θ, ð, s, z, ʃ, l, ɹ, m, n]
+      in_cluster: true
+    description_en: "One consonant in a consonant cluster was dropped."
+    description_vi: "Bạn bỏ bớt một phụ âm trong cụm phụ âm (tiếng Việt không có cụm phụ âm)."
+    tip_en: "Say every consonant in the cluster, slowly first: mo-s-t, then most."
+    tip_vi: "Đọc đủ từng phụ âm trong cụm, chậm trước rồi nhanh dần: mo-s-t → most."
+
+  - id: VN-FINAL-CONSONANT-DROP
+    category: final_consonants
+    when:
+      error_type: [deletion]
+      expected: [p, b, t, d, k, ɡ, s, z, f, v, θ, ð, ʃ, ʒ, tʃ, dʒ, l]
+      position: word_final
+    description_en: "The final consonant was dropped or not released."
+    description_vi: "Bạn nuốt mất phụ âm cuối (tiếng Việt thường không bật âm cuối)."
+    tip_en: "Release the last sound; let a little air out at the end of the word."
+    tip_vi: "Bật âm cuối ra, để một chút hơi thoát ra ở cuối từ."
+
+  - id: VN-TH-STOP
+    category: th
+    when:
+      error_type: [substitution]
+      expected: [θ]
+      heard: [t, tʰ, s, f, d]
+    description_en: "/θ/ (as in think) was replaced by another sound."
+    description_vi: "Âm /θ/ (think) bị đọc thành âm khác (thường là /t/ hoặc /s/)."
+    tip_en: "Put the tongue tip between your teeth and blow air: th-ink."
+    tip_vi: "Đặt đầu lưỡi giữa hai hàm răng rồi thổi hơi: th-ink."
+
+  - id: VN-DH-STOP
+    category: th
+    when:
+      error_type: [substitution]
+      expected: [ð]
+      heard: [d, z, t, v]
+    description_en: "/ð/ (as in this) was replaced by /d/ or /z/."
+    description_vi: "Âm /ð/ (this) bị đọc thành /d/ hoặc /z/."
+    tip_en: "Tongue between the teeth, and switch your voice on: th-is."
+    tip_vi: "Lưỡi giữa hai răng và rung dây thanh: th-is."
+
+  - id: VN-SH-S
+    category: sibilants
+    when:
+      error_type: [substitution]
+      expected: [ʃ, ʒ]
+      heard: [s, z]
+    description_en: "/ʃ/ (as in she) was pronounced as /s/."
+    description_vi: "Âm /ʃ/ (she) bị đọc thành /s/."
+    tip_en: "Round your lips and pull the tongue back a little: sh-e, not s-ee."
+    tip_vi: "Chu môi và kéo lưỡi lùi lại một chút: sh-e chứ không phải s-ee."
+
+  - id: VN-CH-SH
+    category: sibilants
+    when:
+      error_type: [substitution]
+      expected: [tʃ, dʒ]
+      heard: [ʃ, s, z, ʒ, t, d]
+    description_en: "The 'ch'/'j' sound lost its stop: /tʃ/ or /dʒ/ became a hiss."
+    description_vi: "Âm /tʃ/ hoặc /dʒ/ bị mất phần tắc, nghe như /ʃ/ hoặc /z/."
+    tip_en: "Start with a short t or d, then release into sh: t-sh = ch."
+    tip_vi: "Bắt đầu bằng t/d ngắn rồi bật sang sh: t-sh = ch."
+
+  - id: VN-FINAL-DEVOICING
+    category: final_consonants
+    when:
+      error_type: [substitution]
+      expected: [z, d, v, b, ɡ, dʒ, ð]
+      heard: [s, t, f, p, k, tʃ, θ]
+      position: word_final
+    description_en: "A voiced final consonant was made voiceless (bad → bat)."
+    description_vi: "Phụ âm cuối hữu thanh bị đọc thành vô thanh (bad → bat)."
+    tip_en: "Lengthen the vowel before a voiced ending and keep your voice on."
+    tip_vi: "Kéo dài nguyên âm trước phụ âm cuối hữu thanh và giữ rung dây thanh."
+
+  - id: VN-VOWEL-LENGTH
+    category: vowels
+    when:
+      error_type: [substitution]
+      expected: [iː, ɪ, uː, ʊ, ɔː, ɑː, ʌ]
+      heard: [ɪ, iː, i, ʊ, uː, u, ɑː, ʌ, ɔː, ɒ, ɔ, ɐ]
+    description_en: "Long and short vowels were mixed up (ship ↔ sheep, full ↔ fool)."
+    description_vi: "Nhầm nguyên âm dài và ngắn (ship ↔ sheep, full ↔ fool)."
+    tip_en: "Long vowels are tense and held longer: sheep /iː/; short ones are relaxed: ship /ɪ/."
+    tip_vi: "Nguyên âm dài căng và kéo dài hơn: sheep /iː/; nguyên âm ngắn thả lỏng: ship /ɪ/."
+
+  - id: VN-N-L
+    category: consonants
+    when:
+      error_type: [substitution]
+      expected: [n, l]
+      heard: [l, n]
+      position: word_initial
+    description_en: "/n/ and /l/ were swapped at the start of the word."
+    description_vi: "Nhầm /n/ và /l/ ở đầu từ (hay gặp ở giọng miền Bắc)."
+    tip_en: "For /n/ air goes through the nose; for /l/ it flows around the tongue sides."
+    tip_vi: "/n/ hơi đi qua mũi; /l/ hơi đi hai bên lưỡi."
+
+  - id: VN-EPENTHESIS
+    category: final_consonants
+    when:
+      error_type: [insertion]
+      heard: [ə]
+    description_en: "An extra vowel was added after the final consonant (bus → bus-uh)."
+    description_vi: "Bạn thêm một nguyên âm thừa sau phụ âm cuối (bus → bút-xơ)."
+    tip_en: "Stop cleanly on the last consonant; do not open into a vowel."
+    tip_vi: "Dừng gọn ở phụ âm cuối, không mở thêm nguyên âm."
+
+  - id: VN-WORD-STRESS
+    category: stress
+    experimental: true
+    when:
+      error_type: [stress]
+    description_en: "Stress fell on the wrong syllable."
+    description_vi: "Nhấn trọng âm sai âm tiết."
+    tip_en: "Make the stressed syllable longer and louder; reduce the others."
+    tip_vi: "Âm tiết có trọng âm đọc dài hơn và to hơn; các âm tiết khác đọc lướt."
