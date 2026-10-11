@@ -1,7 +1,7 @@
 # Product feedback (for the Devpost "Product Feedback" field)
 
 ## Model Context Protocol — spec 2025-11-25, Streamable HTTP (Alexa+ track requirement)
-- **Used for:** the SpeakLoop server (9 tools, 3 resources, 1 prompt) and the browser client in the simulator.
+- **Used for:** the SpeakLoop server (15 tools, 5 resources, 1 prompt) and the browser client in the simulator.
 - **Worked well:** Streamable HTTP is just POST + JSON/SSE, so a dependency-free browser client was ~150 lines;
   the spec pages for transports and lifecycle are precise.
 - **Needs work:** the hackathon requires 2025-11-25 "or later once confirmed" while the current SDKs already
