@@ -55,12 +55,24 @@ def main() -> None:
     ap.add_argument("--model", default=None)
     ap.add_argument("--dtype", default=None)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--speakers", default=None, help="comma list, e.g. THV,TLV (l2arctic)")
+    ap.add_argument("--per-speaker", type=int, default=None, help="first N utts per speaker (l2arctic)")
     a = ap.parse_args()
     m = get_model(a.model, a.dtype)
     out = CACHE / slug(m.name) / a.dataset
     out.mkdir(parents=True, exist_ok=True)
     if a.dataset == "l2arctic":
-        items = ((u.key, u.wav) for u in load_l2arctic())
+        spk = a.speakers.split(",") if a.speakers else None
+        utts = load_l2arctic(spk)
+        if a.per_speaker:
+            seen: dict[str, int] = {}
+            sel = []
+            for u in utts:
+                seen[u.speaker] = seen.get(u.speaker, 0) + 1
+                if seen[u.speaker] <= a.per_speaker:
+                    sel.append(u)
+            utts = sel
+        items = ((u.key, u.wav) for u in utts)
     else:
         items = iter_speechocean(a.limit)
     done = 0
