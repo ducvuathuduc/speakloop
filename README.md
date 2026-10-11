@@ -22,9 +22,9 @@ so tomorrow's session starts where today's left off.
 [Roadmap](#%EF%B8%8F-roadmap) ·
 [Support](#-support)
 
-<!-- TODO: replace with the 15-second teaser GIF from video-motion/out/ once it is rendered, e.g.
-<a href="assets/speakloop-demo.mp4"><img src="assets/readme/teaser.gif" width="720" alt="15-second SpeakLoop teaser"></a> -->
-▶ **[Watch the demo (2:49)](assets/speakloop-demo.mp4)** · 15-second teaser coming soon
+<a href="assets/speakloop-demo.mp4"><img src="assets/readme/teaser.gif" width="720" alt="SpeakLoop card: record, see every sound checked, practise the missing /t/"></a>
+
+▶ **[Watch the launch film (2:18)](assets/speakloop-demo.mp4)**
 
 <sub>The hero is the v0.2.0 MCP App card rendering <b>demo data</b>. The phone-level scorer behind it is in
 <code>main</code> as the <code>assess_pronunciation</code> tool, an optional install (open wav2vec2 weights, ~1.2 GB);
@@ -138,10 +138,10 @@ A voice assistant with a screen is already in many homes. SpeakLoop turns it int
 <div align="center">
 
 <a href="assets/speakloop-demo.mp4">
-  <img src="assets/video-poster.png" width="720" alt="Watch the SpeakLoop demo video (2 min 49 s, MP4)">
+  <img src="assets/video-poster.png" width="720" alt="Watch the SpeakLoop launch film (2 min 18 s, MP4)">
 </a>
 
-<sub>▶ <a href="assets/speakloop-demo.mp4">Watch the narrated demo (MP4, 2:49, 4.9 MB)</a>. GitHub plays it in the browser.</sub>
+<sub>▶ <a href="assets/speakloop-demo.mp4">Watch the launch film (MP4, 2:18, 3.7 MB)</a>. GitHub plays it in the browser.</sub>
 
 <img src="assets/demo.gif" width="800" alt="SpeakLoop session in the Alexa+ experience simulator: greeting, a 10-minute plan, a spaced-repetition review, a Repeat Sentence drill with a scored result card, and a progress report, while the right panel lists every MCP message">
 
