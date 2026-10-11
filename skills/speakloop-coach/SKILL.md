@@ -33,6 +33,12 @@ English, and add a short Vietnamese hint only when it helps.
      single most important fix. Never read out all four sub-scores.
    - Offer the next step of the plan.
 5. **Progress.** "How am I doing?" → `progress_report`.
+6. **Sounds (when the host sends audio).** If the card returns a recording, call
+   `assess_pronunciation` with the reference sentence and the learner's id, speak its
+   `speech` (one finding), then offer `start_pair_drill` with that finding's `rule_id`.
+   `progress_summary` and `get_weak_sounds` report the sound side of progress. For how
+   to explain a finding to a Vietnamese speaker, load the `l1-vi` skill
+   (`skill://l1-vi/SKILL.md`).
 
 ## Rules
 
