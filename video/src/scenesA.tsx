@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { C, Chip, FONT, Frame3D, Logo, Mask, MaskWords, PHON, Scene, exitK, expoOut, fade, inOut, ramp, stagger } from "./lib";
+import { UICard } from "./UICard";
 
 const center: React.CSSProperties = { alignItems: "center", justifyContent: "center", textAlign: "center" };
 
@@ -113,25 +114,25 @@ export const Problem: React.FC<{ dur: number }> = ({ dur }) => {
     <Scene dur={dur} exit={1}>
       <AbsoluteFill style={center}>
         <div style={big}>
-          <MaskWords text="Speech recognition is built to forgive." at={2} out={58} />
+          <MaskWords text="Speech recognition is built to forgive." at={2} out={48} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={center}>
         <div style={big}>
-          <MaskWords text="It hears the word you meant." at={72} out={128} />
+          <MaskWords text="It hears the word you meant." at={58} out={102} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{ ...center, flexDirection: "column", gap: 10 }}>
         <div style={{ ...big, color: C.text2 }}>
-          <MaskWords text="Great for commands." at={140} out={208} />
+          <MaskWords text="Great for commands." at={112} out={160} />
         </div>
         <div style={big}>
-          <MaskWords text="Useless for learning to speak." at={158} out={210} colors={{ 2: C.accent, 3: C.accent, 4: C.accent }} />
+          <MaskWords text="Useless for learning to speak." at={124} out={162} colors={{ 2: C.accent, 3: C.accent, 4: C.accent }} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={center}>
         <div style={big}>
-          <MaskWords text="A coach has to hear what you actually said." at={224} out={288} />
+          <MaskWords text="A coach has to hear what you actually said." at={172} />
         </div>
       </AbsoluteFill>
     </Scene>
@@ -148,7 +149,7 @@ export const Lockup: React.FC<{ at: number; size?: number; out?: number }> = ({ 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: size * 0.26 }}>
       <div style={{ transform: `scale(${s * (1 - 0.3 * x)}) rotate(${r}deg)`, opacity: fade(f, at, 5) * (1 - x) }}>
-        <Logo size={size * 1.05} style={{ borderRadius: size * 0.24 }} />
+        <Logo size={size * 1.05} />
       </div>
       <div style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1 }}>
         <Mask at={at + 8} out={out} dur={24}>
@@ -183,13 +184,14 @@ export const Reveal: React.FC<{ dur: number }> = ({ dur }) => {
             ty={interpolate(p, [0, 1], [420, 60])}
             o={fade(f, 118, 6)}
           >
-            <Img src={staticFile("assessment-dark-1280x800.png")} style={{ width: 1280, height: 800 }} />
+            <UICard s={{ kind: "split" }} zoom={1280 / 768} />
           </Frame3D>
           <div style={{ position: "absolute", top: 70, left: 0, right: 0, textAlign: "center", fontSize: 54, fontWeight: 700, letterSpacing: "-0.02em" }}>
             <MaskWords text="Finds 2.4× more real pronunciation errors than a transcript check." at={150} base={2} colors={{ 1: C.accent }} />
           </div>
-          <div style={{ position: "absolute", bottom: 34, left: 0, right: 0, textAlign: "center", fontSize: 26, color: C.text2, opacity: fade(f, 175, 10) }}>
-            Recall 0.53 vs 0.22 · L2-ARCTIC, Vietnamese L1 speakers · details at 1:20
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 150, background: "linear-gradient(rgba(11,13,17,0), rgba(11,13,17,0.92) 60%)", opacity: fade(f, 170, 10) }} />
+          <div style={{ position: "absolute", bottom: 36, left: 0, right: 0, textAlign: "center", fontSize: 32, fontWeight: 600, color: C.text, opacity: fade(f, 175, 10) }}>
+            Recall 0.53 vs 0.22 <span style={{ color: C.text2, fontWeight: 500 }}>· L2-ARCTIC, Vietnamese L1 speakers · details at 1:28</span>
           </div>
         </>
       )}

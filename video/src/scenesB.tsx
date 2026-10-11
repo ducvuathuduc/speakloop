@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, OffthreadVideo, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { C, Chip, Frame3D, Logo, Mask, MaskWords, PHON, Scene, fade, inOut, ramp, stagger } from "./lib";
 import { Lockup } from "./scenesA";
 
@@ -73,48 +73,6 @@ export const Memory: React.FC<{ dur: number }> = ({ dur }) => {
 };
 
 // ---------------------------------------------------------------------------------------------
-// 8. LIVE — real footage of the simulator (real MCP client + server).
-export const Live: React.FC<{ dur: number }> = ({ dur }) => {
-  const f = useCurrentFrame();
-  const p = ramp(f, 30, 80);
-  const zIn = ramp(f, 150, 186, 0, 1, inOut);
-  const zOut = ramp(f, 236, 266, 0, 1, inOut);
-  const z = zIn * (1 - zOut);
-  return (
-    <Scene dur={dur}>
-      <div style={{ ...title, top: 60, opacity: 1 - z }}>
-        <MaskWords text="Not a mockup. The real MCP server, running." at={2} base={2} />
-      </div>
-      {f >= 26 && (
-        <AbsoluteFill style={{ transform: `scale(${1 + 0.9 * z})`, transformOrigin: "1520px 560px" }}>
-          <Frame3D
-            w={1440}
-            h={900}
-            rx={interpolate(p, [0, 1], [18, 5]) + ramp(f, 80, dur, 0, -2, (t) => t)}
-            ry={interpolate(p, [0, 1], [-20, -6]) + ramp(f, 80, dur, 0, 4, (t) => t)}
-            s={interpolate(p, [0, 1], [0.62, 0.84])}
-            ty={interpolate(p, [0, 1], [360, 70])}
-            o={fade(f, 26, 6)}
-          >
-            <OffthreadVideo src={staticFile("sim.mp4")} startFrom={24} muted style={{ width: 1440, height: 900 }} />
-          </Frame3D>
-        </AbsoluteFill>
-      )}
-      <div style={{ position: "absolute", bottom: 48, left: 0, right: 0, textAlign: "center", fontSize: 34, fontWeight: 600, opacity: fade(f, 90, 8) * (1 - z) }}>
-        MCP 2025-11-25 over Streamable HTTP · 9 typed tools · an MCP App card
-      </div>
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 260, background: "linear-gradient(rgba(11,13,17,0), rgba(11,13,17,0.92) 60%)", opacity: z }} />
-      <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, textAlign: "center", fontSize: 40, fontWeight: 700, opacity: fade(f, 170, 6) * z }}>
-        Every tools/call, live: plan → drill → submit_attempt.
-      </div>
-      <div style={{ position: "absolute", top: 24, right: 40, fontSize: 20, color: C.text3, opacity: fade(f, 40, 8) * (1 - z) }}>
-        Screen recording · SpeakLoop Alexa+ simulator · 7× speed
-      </div>
-    </Scene>
-  );
-};
-
-// ---------------------------------------------------------------------------------------------
 // 9. PROOF — benchmark bars, exact figures from benchmarks/RESULTS.md.
 const Bar: React.FC<{ at: number; v: number; label: string; win?: boolean; W: number }> = ({ at, v, label, win, W }) => {
   const f = useCurrentFrame();
@@ -134,10 +92,10 @@ const Bar: React.FC<{ at: number; v: number; label: string; win?: boolean; W: nu
             fontWeight: 700,
             color: win ? C.text : C.text2,
             fontVariantNumeric: "tabular-nums",
-            opacity: fade(f, at, 6),
+            opacity: ramp(f, at + 26, at + 36, 0, 1),
           }}
         >
-          {(v * p).toFixed(2)}
+          {v.toFixed(2)}
         </div>
       </div>
     </div>
@@ -187,7 +145,7 @@ export const Proof: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vert
         <div style={{ fontSize: 44, fontWeight: 700, marginTop: 18 }}>
           <MaskWords text="more real errors caught" at={246} base={2} />
         </div>
-        <div style={{ fontSize: 30, color: C.text2, marginTop: 20, opacity: fade(f, 276, 10) }}>at similar precision (0.59 vs 0.62)</div>
+        <div style={{ fontSize: 34, color: C.text, marginTop: 20, fontWeight: 600, opacity: fade(f, 276, 10) }}>at similar precision <span style={{ color: C.text2 }}>(0.59 vs 0.62)</span></div>
       </div>
       <div
         style={{
@@ -196,9 +154,9 @@ export const Proof: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vert
           left: vertical ? 60 : 0,
           right: vertical ? 60 : 0,
           textAlign: "center",
-          fontSize: vertical ? 26 : 23,
+          fontSize: vertical ? 28 : 26,
           lineHeight: 1.45,
-          color: C.text3,
+          color: C.text2,
           opacity: fade(f, 84, 10),
         }}
       >
@@ -337,7 +295,7 @@ export const Close: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vert
       <AbsoluteFill style={{ ...center, flexDirection: "column", gap: 0 }}>
         <Lockup at={0} size={vertical ? 120 : 150} />
         <div style={{ fontSize: vertical ? 50 : 56, color: C.text2, marginTop: 50, fontWeight: 500 }}>
-          <MaskWords text="Speak a little every day." at={24} base={2} />
+          <MaskWords text="Speak a little every day." at={vertical ? 12 : 24} base={2} />
         </div>
         <div
           style={{
@@ -347,13 +305,13 @@ export const Close: React.FC<{ dur: number; vertical?: boolean }> = ({ dur, vert
             border: `2px solid ${C.line}`,
             fontSize: vertical ? 38 : 46,
             fontWeight: 700,
-            opacity: fade(f, 50, 8),
-            transform: `translateY(${ramp(f, 50, 76, 30, 0)}px)`,
+            opacity: fade(f, vertical ? 24 : 50, 8),
+            transform: `translateY(${ramp(f, vertical ? 24 : 50, vertical ? 48 : 76, 30, 0)}px)`,
           }}
         >
           github.com/ducvuathuduc/speakloop
         </div>
-        <div style={{ fontSize: vertical ? 26 : 26, color: C.text3, marginTop: 40, opacity: fade(f, 74, 10), padding: vertical ? "0 60px" : 0 }}>
+        <div style={{ fontSize: vertical ? 26 : 26, color: C.text3, marginTop: 40, opacity: fade(f, vertical ? 36 : 74, 10), padding: vertical ? "0 60px" : 0 }}>
           Built for Alexa+ · MCP 2025-11-25 · Amazon Bedrock · open source
         </div>
       </AbsoluteFill>

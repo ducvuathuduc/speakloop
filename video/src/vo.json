@@ -1,0 +1,18 @@
+{
+  "launch": [
+    {"clip": "learner", "at": 0.267, "note": "hook: the learner's sentence"},
+    {"clip": "coach", "at": 11.733, "note": "problem: last line"},
+    {"clip": "meet", "at": 14.35, "note": "reveal: lockup"},
+    {"clip": "learner", "at": 71.0, "note": "real card: recording (sceneReal REAL_VO.listen)", "gain_db": -3},
+    {"clip": "learner", "at": 80.6, "note": "real card: karaoke playback (REAL_VO.karaoke)", "gain_db": -3},
+    {"clip": "walked", "at": 84.733, "note": "real card: drill (REAL_VO.drill)", "gain_db": -3},
+    {"clip": "proof", "at": 95.733, "note": "proof: 2.4x"},
+    {"clip": "close", "at": 126.8, "note": "close"}
+  ],
+  "teaser": [
+    {"clip": "learner", "at": 0.267},
+    {"clip": "meet", "at": 6.35},
+    {"clip": "proof", "at": 23.733},
+    {"clip": "close", "at": 26.4}
+  ]
+}

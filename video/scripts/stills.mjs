@@ -8,7 +8,7 @@ const browser = await openBrowser("chrome", { chromiumOptions: { gl: "swangle" }
 const composition = await selectComposition({ serveUrl, id: comp, puppeteerInstance: browser });
 for (const fr of frames) {
   const t = Date.now();
-  await renderStill({ composition, serveUrl, frame: Number(fr), output: path.join(outDir, `f${String(fr).padStart(4, "0")}.png`), puppeteerInstance: browser });
+  await renderStill({ composition, serveUrl, frame: Number(fr), output: path.join(outDir, `f${String(fr).padStart(4, "0")}.png`), puppeteerInstance: browser, onBrowserLog: (l) => { if (/MEASURE|rror/.test(l.text)) console.log(l.text.slice(0, 4000)); } });
   console.log("still", fr, Date.now() - t, "ms");
 }
 await browser.close({ silent: true });

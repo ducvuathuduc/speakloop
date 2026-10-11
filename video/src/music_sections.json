@@ -1,14 +1,14 @@
 {
-  "total_seconds": 130,
+  "total_seconds": 138,
   "sections": [
     {"start": 0, "end": 6, "mode": "intro"},
-    {"start": 6, "end": 16, "mode": "light"},
-    {"start": 16, "end": 80, "mode": "full"},
-    {"start": 80, "end": 96, "mode": "break"},
-    {"start": 96, "end": 118, "mode": "full"},
-    {"start": 118, "end": 130, "mode": "outro"}
+    {"start": 6, "end": 14, "mode": "light"},
+    {"start": 14, "end": 88, "mode": "full"},
+    {"start": 88, "end": 104, "mode": "break"},
+    {"start": 104, "end": 126, "mode": "full"},
+    {"start": 126, "end": 138, "mode": "outro"}
   ],
-  "impacts": [6, 16, 80, 96, 118],
-  "risers": [16, 96, 118],
-  "whooshes": [24, 38, 50, 60, 70, 110]
+  "impacts": [6, 14, 88, 104, 126],
+  "risers": [14, 104, 126],
+  "whooshes": [22, 36, 48, 58, 68, 118]
 }

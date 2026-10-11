@@ -1,9 +1,9 @@
 {
-  "total_seconds": 30,
+  "total_seconds": 32,
   "sections": [
     {"start": 0, "end": 6, "mode": "intro"},
     {"start": 6, "end": 26, "mode": "full"},
-    {"start": 26, "end": 30, "mode": "outro"}
+    {"start": 26, "end": 32, "mode": "outro"}
   ],
   "impacts": [6, 26],
   "risers": [6, 26],
