@@ -5,3 +5,5 @@ __pycache__/
 .env
 .pytest_cache/
 demo_out/
+ui/node_modules/
+ui/dist/
