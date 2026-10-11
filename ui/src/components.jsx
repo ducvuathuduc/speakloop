@@ -9,6 +9,7 @@ const paths = {
   speaker: <><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></>,
   expand: <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />,
   back: <path d="M15 5l-7 7 7 7" />,
+  forward: <path d="M9 5l7 7-7 7" />,
   ear: <path d="M7 9a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-5.5 1.5M10 9.5a2 2 0 0 1 4 0" />,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   deletion: <><circle cx="12" cy="12" r="6.5" /><path d="M6 18L18 6" /></>,
@@ -48,12 +49,13 @@ export function Brand() {
   );
 }
 
-export function Button({ kind = "secondary", icon, children, onClick, label, disabled, pressed, class: cls = "" }) {
+export function Button({ kind = "secondary", icon, iconEnd, children, onClick, label, disabled, pressed, class: cls = "" }) {
   return (
     <button type="button" class={`btn btn-${kind} ${children ? "" : "btn-icon"} ${cls}`} onClick={onClick}
       aria-label={label} disabled={disabled} aria-pressed={pressed}>
       {icon && <Icon name={icon} size={20} />}
       {children && <span>{children}</span>}
+      {iconEnd && <Icon name={iconEnd} size={18} />}
     </button>
   );
 }
@@ -73,10 +75,10 @@ export function Shell({ title, right, children, class: cls = "", label }) {
 }
 
 export function Ring({ value, size = 136, stroke = 14, label }) {
-  const r = (size - stroke) / 2;
+  const r = (size - stroke) / 2 - 1; // 1px inset: no edge clipping under fractional device zoom
   const { c, offset } = ringDash(value, r);
   return (
-    <svg class="ring" width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={label}>
+    <svg class="ring" overflow="visible" width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={label}>
       <circle class="ring-track" cx={size / 2} cy={size / 2} r={r} stroke-width={stroke} fill="none" />
       <circle class="ring-value" cx={size / 2} cy={size / 2} r={r} stroke-width={stroke} fill="none"
         stroke-dasharray={c} stroke-dashoffset={offset} stroke-linecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />

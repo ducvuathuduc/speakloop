@@ -72,5 +72,20 @@ export function ringDash(value, r) {
 /** Speech line for voice-only parity (no symbols, no pipes). */
 export function spokenSummary(a) {
   const h = headline(a);
-  return h.en.replace(/[“”]/g, "").replace(/\/(.*?)\//g, "the $1 sound");
+  return h.en.replace(/[“”]/g, "")
+    .replace(/\b(The|the|An extra|an extra) \/(.*?)\//g, (_, art, ipa) => `${art} ${ipa} sound`)
+    .replace(/\/(.*?)\//g, "the $1 sound");
 }
+
+/** "final /t/ missing" style caption for the focus word's first error. */
+export function focusNote(w) {
+  const e = w?.errors?.[0];
+  if (!e) return "";
+  const pos = e.index === w.phones[w.phones.length - 1]?.index ? "final " : e.index === w.phones[0]?.index ? "first " : "";
+  if (e.error_type === "deletion") return `${pos}/${e.expected}/ missing`;
+  if (e.error_type === "substitution") return `/${e.ipa}/ for /${e.expected}/`;
+  return `extra /${e.ipa}/`;
+}
+
+/** What was actually heard for a word, as /ipa/ (deleted phones dropped). */
+export const heardIpa = (w) => ipaSlash((w?.phones || []).filter((p) => p.error_type !== "deletion" && p.ipa).map((p) => p.ipa).join(""));

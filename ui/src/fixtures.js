@@ -70,7 +70,7 @@ export const pairDrill = {
 export const listen = {
   kind: "listen",
   reference_text: "She walked to the shops yesterday.",
-  hint: "Tap the mic, or just say it to Alexa.",
+  hint: "Or just say it to Alexa.",
 };
 
 export const micFallback = { ...listen, mic_state: "blocked" };

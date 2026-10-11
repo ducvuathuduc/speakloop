@@ -1,8 +1,8 @@
 // The SpeakLoop card set. Each card answers one question and maps to an Alexa+ pattern
 // (Card, List, Carousel). No KPI grids, no chat bubbles, no gradients.
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { Brand, Button, Icon, Legend, Ring, Segmented, Shell, StatusMark } from "./components.jsx";
-import { activePhoneIndex, fmtClock, groupWords, headline, pct, statusOf } from "./model.js";
+import { activePhoneIndex, fmtClock, focusNote, groupWords, headline, heardIpa, pct, statusOf } from "./model.js";
 
 const firstSentence = (s) => (s ? String(s).split(/(?<=[.!?])\s/)[0] : "");
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -17,13 +17,16 @@ export function SplitCard({ a, onYours, onTarget, onPractise, onDetails, playing
     <Shell label="What a typical assistant hears compared with what SpeakLoop hears"
       right={<>
         {a.engine === "fixture" && <span class="tag" title="Demo data, not a live assessment">Demo data</span>}
-        <Button kind="ghost" icon="expand" onClick={onDetails} label={`See all ${nErr} sounds`}>{`${plural(nErr, "sound", "sounds")} to fix`}</Button>
+        <Button kind="ghost" iconEnd="forward" onClick={onDetails} label={`See all ${nErr} sounds`}>{`${plural(nErr, "sound", "sounds")} to fix`}</Button>
       </>}>
       <div class="split">
         <section class="pane pane-typical" aria-label="A typical assistant hears">
           <p class="pane-label"><Icon name="ear" size={16} /> A typical assistant hears</p>
           <p class="pane-sentence">{a.asr_transcript || a.reference_text}</p>
-          <p class="pane-verdict"><StatusMark type="ok" size={16} /> Looks perfect</p>
+          <div class="pane-foot">
+            {focus && <span class="focus-word">{focus.text.replace(/[.,!?]$/, "")}</span>}
+            <span class="pane-verdict"><StatusMark type="ok" size={18} /> Looks perfect</span>
+          </div>
         </section>
         <section class="pane pane-sl" aria-label="SpeakLoop hears">
           <p class="pane-label"><Icon name="ear" size={16} /> SpeakLoop hears</p>
@@ -31,19 +34,22 @@ export function SplitCard({ a, onYours, onTarget, onPractise, onDetails, playing
             {words.map((w, i) => (
               <>
                 <span class={w.errors.length ? `w-err w-${w.errors[0].error_type}` : "w-ok"}>
-                  {w.text}{w.errors.length > 0 && <sup><StatusMark type={w.errors[0].error_type} size={14} /></sup>}
+                  {w.text}{w.errors.length > 0 && <span class="w-mark"><StatusMark type={w.errors[0].error_type} size={12} /></span>}
                 </span>{i < words.length - 1 ? " " : ""}
               </>
             ))}
           </p>
           {focus && (
-            <div class="mini-strip" aria-label={`Sounds in ${focus.text}`}>
-              {focus.phones.map((p) => (
-                <span class={`mini-cell s-${statusOf(p)}`}>
-                  <span class="ipa">{p.error_type === "deletion" ? p.expected : p.ipa}</span>
-                  {p.error_type && <StatusMark type={p.error_type} size={14} />}
-                </span>
-              ))}
+            <div class="pane-foot">
+              <div class="mini-strip" aria-label={`Sounds in ${focus.text}`}>
+                {focus.phones.map((p) => (
+                  <span class={`mini-cell s-${statusOf(p)}`}>
+                    <span class="ipa">{p.error_type === "deletion" ? p.expected : p.ipa}</span>
+                    {p.error_type && <StatusMark type={p.error_type} size={14} />}
+                  </span>
+                ))}
+              </div>
+              {focusNote(focus) && <span class="mini-note"><span class="ipa mini-heard">{heardIpa(focus)}</span><span class="mini-why">{focusNote(focus)}</span></span>}
             </div>
           )}
         </section>
@@ -75,12 +81,26 @@ export function KaraokeCard({ a, t, playing, source, onToggle, onSource, onBack 
     const el = stripRef.current?.querySelector(".cell.active");
     el?.scrollIntoView?.({ block: "nearest", inline: "center", behavior: "smooth" });
   }, [active]);
+  // Fit the whole sentence on one screen when it is close (down to 80%); longer ones scroll with an edge fade.
+  const [fit, setFit] = useState({ scale: 1, overflow: false });
+  useLayoutEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    const inner = el.firstElementChild;
+    const natural = inner.scrollWidth / (fit.scale || 1);
+    const avail = el.clientWidth - 8;
+    const scale = natural > avail ? Math.max(0.8, avail / natural) : 1;
+    const overflow = natural * scale > avail + 1;
+    if (Math.abs(scale - fit.scale) > 0.005 || overflow !== fit.overflow) setFit({ scale, overflow });
+  }, [a]);
   const activeWord = words.find((w) => w.phones.some((p) => p.index === active));
   return (
     <Shell label="Every sound, synced to your recording"
       right={<Segmented label="Audio source" value={source} onChange={onSource}
         options={[{ value: "yours", label: "Yours" }, { value: "target", label: "Target" }]} />}>
-      <div class="strip" ref={stripRef} role="list" aria-label="Sounds in the sentence">
+      <div class="stage">
+      <div class={`strip ${fit.overflow ? "is-overflow" : ""}`} ref={stripRef}>
+      <div class="strip-fit" style={{ "--strip-fit": fit.scale }} role="list" aria-label="Sounds in the sentence">
         {words.map((w) => (
           <div class={`word ${w.errors.length ? "has-err" : ""} ${activeWord === w ? "is-active" : ""}`} role="listitem">
             <span class="word-text">{w.text.replace(/[.,!?]$/, "")}</span>
@@ -100,7 +120,9 @@ export function KaraokeCard({ a, t, playing, source, onToggle, onSource, onBack 
           </div>
         ))}
       </div>
+      </div>
       <div class="timeline" aria-hidden="true"><span class="timeline-fill" style={{ width: `${progress * 100}%` }} /></div>
+      </div>
       <footer class="actions">
         <Button kind="ghost" icon="back" onClick={onBack} label="Back to summary" />
         <Button kind="primary" class="btn-round" icon={playing ? "pause" : "play"} onClick={onToggle} label={playing ? "Pause" : "Play with sounds"} />
@@ -121,7 +143,7 @@ export function RingsCard({ data, onStart }) {
   const due = nodes.find((n) => n.due_today) || nodes[0];
   return (
     <Shell title="Your weak sounds" right={<span class="meta">{data.window_label || "This week"}</span>}>
-      <ul class="rings" aria-label="Weak sounds, mastery this week">
+      <ul class="rings stage-grow" aria-label="Weak sounds, mastery this week">
         {nodes.map((n) => {
           const d = Math.round((n.delta_week || 0) * 100);
           return (
@@ -161,11 +183,13 @@ export function DrillCard({ d, rec, onMic }) {
     <Shell title={d.title || "2-minute warm-up"}
       right={<span class="meta tabular" aria-label={`${fmtClock(d.seconds_left)} left, step ${d.step} of ${d.total}`}>{fmtClock(d.seconds_left)} · {d.step}/{d.total}</span>}>
       <div class="bar" aria-hidden="true"><span style={{ width: `${(1 - d.seconds_left / d.seconds_total) * 100}%` }} /></div>
-      <p class="focus-label">{d.focus_label}</p>
-      <div class="pairs">{tile(a, "a")}<span class="vs" aria-hidden="true">vs</span>{tile(b, "b")}</div>
+      <div class="stage">
+        <p class="focus-label">{d.focus_label}</p>
+        <div class="pairs">{tile(a, "a")}<span class="vs" aria-hidden="true">vs</span>{tile(b, "b")}</div>
+      </div>
       <footer class="actions">
         {d.last_attempt && (
-          <p class="last"><StatusMark type={d.last_attempt.ok ? "ok" : "deletion"} size={16} /> {d.last_attempt.word} · {d.last_attempt.note}</p>
+          <p class="last"><span class="last-k">Last try</span><StatusMark type={d.last_attempt.ok ? "ok" : "deletion"} size={16} /> {d.last_attempt.word} · {d.last_attempt.note}</p>
         )}
         <span class="spacer" />
         <MicButton rec={rec} onClick={onMic} label={`Say “${target.word}”`} />
@@ -193,7 +217,7 @@ export function ListenCard({ d, rec, onMic, onRetry }) {
   const reason = rec?.reason || d.mic_state;
   return (
     <Shell title="Say this sentence">
-      <p class="target-sentence">{d.reference_text}</p>
+      <div class="stage"><p class="target-sentence">{d.reference_text}</p></div>
       {blocked ? (
         <div class="fallback" role="status">
           <Icon name="info" size={24} />
@@ -207,7 +231,7 @@ export function ListenCard({ d, rec, onMic, onRetry }) {
       ) : (
         <footer class="actions listen-actions">
           <MicButton big rec={rec} onClick={onMic} label="Tap to record" />
-          <p class="hint">{d.hint || "Tap the mic, or just say it to Alexa."}</p>
+          <p class="hint">{d.hint || "Or just say it to Alexa."}</p>
         </footer>
       )}
     </Shell>
