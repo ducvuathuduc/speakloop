@@ -5,7 +5,9 @@ tool call against the MCP server over Streamable HTTP. For each turn it asks
 this planner "what next?" and gets back either a tool call or a line to speak.
 
 Providers (env SPEAKLOOP_LLM):
-  rules   - deterministic intent router, no keys needed (default; used in tests)
+  auto    - (default) the Strands Agents planner in planner.py: Bedrock -> local llama.cpp
+            model -> rules, each model tier behind a circuit breaker. Alias: strands
+  rules   - deterministic intent router, no keys needed (used in tests)
   bedrock - Amazon Bedrock Converse API with tool use (boto3); the Agent Skill
             fetched from the MCP server becomes the system prompt
   openai  - any OpenAI-compatible chat-completions endpoint
@@ -54,7 +56,7 @@ CONTROL = re.compile(r"^(stop|skip|cancel|next|progress|how am i doing)\b", re.I
 
 
 def provider_name() -> str:
-    return os.environ.get("SPEAKLOOP_LLM", "rules").lower()
+    return os.environ.get("SPEAKLOOP_LLM", "auto").lower()
 
 
 # ------------------------------------------------------------------ helpers
@@ -359,6 +361,10 @@ async def step(body: dict) -> dict:
     provider = provider_name()
     if g:
         return g | {"provider": provider}
+    if provider in ("auto", "strands"):
+        from . import planner
+
+        return await planner.plan(body)
     global _throttled_until
     if provider in ("bedrock", "openai") and time.monotonic() < _throttled_until:
         left = int(_throttled_until - time.monotonic())
