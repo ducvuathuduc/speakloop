@@ -1,0 +1,145 @@
+/*
+ * SpeakLoop design tokens — v1.0.0
+ * Design language: "Alexa-native, lab-precise".
+ *
+ * Layer 1 (alexa.*) is copied verbatim from the Alexa+ MCP Design Guide, Visual Foundations
+ * (https://developer.amazon.com/docs/alexaplus/add-ons/mcp-addon-visual-foundations.html, Jul 21 2026).
+ * Layer 2 (sl.*) is SpeakLoop's semantic layer, derived from layer 1. Components only use layer 2.
+ *
+ * Authored at the 768x480 base canvas. Device scale is ONE root zoom (see surfaces.js),
+ * never per-element sizing.
+ */
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./fonts/atkinson-next-latin.woff2") format("woff2");
+  font-weight: 200 800; font-style: normal; font-display: block;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./fonts/atkinson-next-latin-ext.woff2") format("woff2");
+  font-weight: 200 800; font-style: normal; font-display: block;
+  unicode-range: U+0100-024F;
+}
+/* Subset of Charis SIL 6.200 (OFL). Renamed because "Charis" and "SIL" are Reserved Font Names. */
+@font-face {
+  font-family: "SpeakLoop Phonetic";
+  src: url("./fonts/speakloop-phonetic.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+
+:root {
+  /* ---- Layer 1: Alexa+ tokens (verbatim) ---------------------------------------- */
+  --alexa-textStyleDisplay1: 48px;
+  --alexa-textStyleDisplay2: 40px;
+  --alexa-textStyleDisplay3: 32px;
+  --alexa-textStyleDisplay4: 28px;
+  --alexa-textStyleDisplay5: 24px;
+  --alexa-textStyleHeadline1: 20px;
+  --alexa-textStyleHeadline2: 18px;
+  --alexa-textStyleBody1: 16px;
+  --alexa-textStyleBody2: 14px;
+  --alexa-textStyleBody3: 12px;
+  --alexa-textStyleLabel1: 10px;
+  --alexa-textStyleLabel2: 8px;
+
+  --alexa-spacing4XSmall: 2px;
+  --alexa-spacing2XSmall: 6px;
+  --alexa-spacingXSmall: 8px;
+  --alexa-spacingSmall: 12px;
+  --alexa-spacingMedium: 16px;
+  --alexa-spacingLarge: 20px;
+  --alexa-spacingXLarge: 24px;
+
+  --alexa-shapeRoundedRectXSmall: 4px;
+  --alexa-shapeRoundedRectSmall: 8px;
+  --alexa-shapeRoundedRectMedium: 12px;
+  --alexa-shapeRoundedRectLarge: 16px;
+  --alexa-shapeCircle: 9999px;
+
+  --alexa-action-small-icon: 16px;
+  --alexa-action-medium-icon: 20px;
+  --alexa-action-large-icon: 24px;
+
+  --alexa-dark-default-normal: #14181E;
+  --alexa-dark-nested-inner-normal: #1B2028;
+  --alexa-light-default-normal: #FFFFFF;
+  --alexa-light-nested-outer-normal: #FAF9FB;
+  --alexa-light-nested-inner-normal: #FFFFFF;
+  --alexa-dark-button-primary: #2D415E;   /* base color/secondary blue/270 */
+  --alexa-dark-button-secondary: #232F40; /* base color/secondary blue/190 */
+
+  /* ---- Layer 2: SpeakLoop semantic tokens ---------------------------------------- */
+  --sl-font-ui: "Atkinson Hyperlegible Next", "Noto Sans", system-ui, sans-serif;
+  --sl-font-phonetic: "SpeakLoop Phonetic", "Charis SIL", "Doulos SIL", "Noto Serif", serif;
+
+  --sl-canvas-w: 768px;
+  --sl-canvas-h: 480px;
+  --sl-touch: 48px;                       /* accessibility: min 48x48 target */
+
+  --sl-pad: var(--alexa-spacingXLarge);
+  --sl-gap: var(--alexa-spacingMedium);
+  --sl-gap-s: var(--alexa-spacingSmall);
+  --sl-gap-xs: var(--alexa-spacingXSmall);
+
+  --sl-r-card: var(--alexa-shapeRoundedRectLarge);
+  --sl-r-inner: var(--alexa-shapeRoundedRectMedium);
+  --sl-r-chip: var(--alexa-shapeRoundedRectSmall);
+  --sl-r-tick: var(--alexa-shapeRoundedRectXSmall);
+  --sl-r-pill: var(--alexa-shapeCircle);
+
+  --sl-motion: 180ms cubic-bezier(.2, .7, .2, 1);
+}
+
+/* Dark is the default Echo Show appearance. */
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+  --sl-bg: #0B0D11;                       /* host backdrop behind the card (simulator, standalone) */
+  --sl-card: var(--alexa-dark-default-normal);
+  --sl-inner: var(--alexa-dark-nested-inner-normal);
+  --sl-line: #2A313C;
+  --sl-track: #262D38;
+  --sl-text: #F3F5F8;                     /* 16.3:1 on card */
+  --sl-text-2: #A9B2C0;                   /* 8.3:1 on card */
+  --sl-text-3: #8892A1;                   /* 5.7:1 on card, 5.2:1 on inner */
+  --sl-btn: var(--alexa-dark-button-primary);
+  --sl-btn-2: var(--alexa-dark-button-secondary);
+  --sl-btn-text: #F3F5F8;
+  /* The one accent (#FF8A3D). Primary action, active karaoke phone, ring progress. */
+  --sl-accent: #FF8A3D;                   /* 7.6:1 on card */
+  --sl-on-accent: #1A1007;                /* 8.0:1 on the accent */
+  --sl-accent-ink: #FFA466;               /* accent used as text: 9.1:1 on card */
+  --sl-focus: #FFB98A;
+
+  /* Colour-blind-safe statuses (Okabe–Ito hues). Always paired with a symbol. */
+  --sl-ok: #56B4E9;                       /* ✓ heard as expected */
+  --sl-changed: #F0E442;                  /* ≈ came out as another sound */
+  --sl-missing: #E59BC8;                  /* ∅ sound missing (Okabe–Ito reddish purple, lifted) */
+  --sl-extra: #E59BC8;                    /* + extra sound inserted */
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --sl-bg: var(--alexa-light-nested-outer-normal);
+  --sl-card: var(--alexa-light-default-normal);
+  --sl-inner: #F3F2F5;                    /* inner panels need separation on white */
+  --sl-line: #E2E0E6;
+  --sl-track: #E8E6EC;
+  --sl-text: #14181E;                     /* 17.8:1 */
+  --sl-text-2: #4D5562;                   /* 7.5:1 */
+  --sl-text-3: #646C79;                   /* 5.3:1 on white, 4.75:1 on inner */
+  --sl-btn: #E9EDF3;
+  --sl-btn-2: #F1F3F7;
+  --sl-btn-text: #14181E;
+  /* Same accent hue, deepened so graphics and text keep >= 4.5:1 on white. */
+  --sl-accent: #B8530E;                   /* 4.9:1 on white */
+  --sl-on-accent: #FFFFFF;                /* 4.9:1 */
+  --sl-accent-ink: #A8480C;               /* 5.8:1 on white */
+  --sl-focus: #A8480C;
+
+  --sl-ok: #0072B2;
+  --sl-changed: #7A6400;
+  --sl-missing: #A0457E;
+  --sl-extra: #A0457E;
+}

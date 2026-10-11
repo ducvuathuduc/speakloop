@@ -6,3 +6,6 @@ __pycache__/
 .pytest_cache/
 demo_out/
 bench_cache/
+ui/node_modules/
+ui/dist/
+node_modules/
