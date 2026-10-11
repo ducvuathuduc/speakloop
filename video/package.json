@@ -1,0 +1,20 @@
+{
+  "name": "speakloop-launch-video",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Launch out/speakloop_launch.mp4 --concurrency=1",
+    "render:teaser": "remotion render Teaser out/speakloop_teaser_vertical.mp4 --concurrency=1"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "remotion": "4.0.534",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "@types/react": "19.1.0"
+  }
+}

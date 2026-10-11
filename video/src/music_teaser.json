@@ -1,0 +1,11 @@
+{
+  "total_seconds": 30,
+  "sections": [
+    {"start": 0, "end": 6, "mode": "intro"},
+    {"start": 6, "end": 26, "mode": "full"},
+    {"start": 26, "end": 30, "mode": "outro"}
+  ],
+  "impacts": [6, 26],
+  "risers": [6, 26],
+  "whooshes": [10, 16]
+}
