@@ -1,32 +1,33 @@
 <div align="center">
 
-<img src="assets/logo.svg" width="112" height="112" alt="SpeakLoop logo">
+<a href="#-demo"><img src="assets/readme/hero.png" width="100%" alt="SpeakLoop: Hear the sounds a transcript misses. An Echo Show-style frame shows a card comparing what a typical assistant hears with what SpeakLoop hears, flagging the missing /t/ in 'walked'."></a>
 
-# SpeakLoop
+### An Alexa+ English speaking coach that remembers you.
 
-**An Alexa+ English speaking coach that remembers you.**
-
-It listens, scores what it heard, names the *one* thing to fix, and remembers which sounds you keep dropping,<br>
+It listens, names the *one* sound to fix, and remembers which sounds you keep dropping,<br>
 so tomorrow's session starts where today's left off.
 
 [![CI](https://github.com/ducvuathuduc/speakloop/actions/workflows/ci.yml/badge.svg)](https://github.com/ducvuathuduc/speakloop/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-33%20passed-2ea44f)](#-testing)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25-6E56CF)](https://modelcontextprotocol.io/specification/2025-11-25)
-[![Release](https://img.shields.io/github/v/release/ducvuathuduc/speakloop?color=0ea5e9)](https://github.com/ducvuathuduc/speakloop/releases)
+[![Release](https://img.shields.io/github/v/release/ducvuathuduc/speakloop?color=FF8A3D)](https://github.com/ducvuathuduc/speakloop/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 
 [Quickstart](#-quickstart) ·
 [Demo video](#-demo) ·
+[Benchmark](#-benchmark) ·
 [How it works](#-how-it-works) ·
 [MCP tools](#-mcp-surface) ·
-[Configuration](#%EF%B8%8F-configuration) ·
 [Roadmap](#%EF%B8%8F-roadmap)
 
-<img src="assets/demo.gif" width="800" alt="SpeakLoop session in the Alexa+ experience simulator: greeting, a 10-minute plan, a spaced-repetition review, a Repeat Sentence drill with a scored result card, and a progress report, while the right panel lists every MCP message">
+<!-- TODO: replace with the 15-second teaser GIF from video-motion/out/ once it is rendered, e.g.
+<a href="assets/speakloop-demo.mp4"><img src="assets/readme/teaser.gif" width="720" alt="15-second SpeakLoop teaser"></a> -->
+▶ **[Watch the demo (2:49)](assets/speakloop-demo.mp4)** · 15-second teaser coming soon
 
-<sub>A full session at 4× speed: greet → plan 10 minutes → review missed words → Repeat Sentence → scored card → progress.<br>
-The right-hand panel is the live MCP traffic between the page and the server.</sub>
+<sub>The hero shows the Alexa+ card design and the phoneme scorer from the in-development <code>feat/ui</code> and
+<code>feat/phoneme</code> branches, with demo data. Release v0.1.0 scores the speech-to-text transcript; see
+<a href="#-project-status--honest-limitations">Project status</a>.</sub>
 
 </div>
 
@@ -40,13 +41,54 @@ The right-hand panel is the live MCP traffic between the page and the server.</s
 > calls from our new AWS account currently return `429 Too many tokens per day`; see
 > [Project status](#-project-status--honest-limitations).
 
+## 📊 Benchmark
+
+**A transcript can't hear a dropped sound when the recogniser "fixes" the word.** On L2-ARCTIC (Vietnamese speakers),
+SpeakLoop's phoneme scorer finds **2.4× as many real pronunciation errors** as diffing a Whisper-small transcript
+against the reference, at about the same precision:
+
+| Same 100 held-out utterances · 3,200 phones · 794 mispronounced | Precision | Recall | F1 |
+|---|---|---|---|
+| Whisper-small transcript diff (baseline) | 0.62 | 0.22 | 0.32 |
+| **SpeakLoop phoneme scorer (default thresholds)** | **0.59** | **0.53** | **0.56** |
+
+The cost is more false alarms on correctly said phones: 12.3 % vs 4.5 % for the baseline. Thresholds were tuned on
+separate dev speakers only. Method, per-error breakdown and limitations:
+**[benchmarks/RESULTS.md](https://github.com/ducvuathuduc/speakloop/blob/feat/phoneme/benchmarks/RESULTS.md)**
+(on the `feat/phoneme` branch, not yet in a release).
+
+<div align="center">
+<img src="assets/readme/features.png" width="100%" alt="Three cards: every phone you said marked heard, changed or missing; a minimal-pair drill for the dropped sound; weak sounds tracked across days">
+</div>
+
+## 🚀 Quickstart
+
+**Requirements:** Python 3.11+. Chrome or Edge for voice input (typing works in every browser). No API keys.
+
+```bash
+git clone https://github.com/ducvuathuduc/speakloop && cd speakloop
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+python scripts/seed_demo.py speakloop.db lan   # optional: 6 earlier practice days for learner "lan"
+python -m speakloop.server                     # → http://127.0.0.1:8765
+```
+
+Open **http://127.0.0.1:8765** and click the chips in order (*Hi → Practise 10 min → Yes / next → …*), or press the
+mic and talk. The MCP endpoint is **`http://127.0.0.1:8765/mcp`**.
+
+> [!TIP]
+> `seed_demo.py` writes earlier practice days with **simulated dates** (scored by the real scorer), so streaks,
+> due reviews and the progress chart are visible in a short demo. Skip it to start as a brand-new learner.
+
 ## 📖 Table of contents
 
+- [Quickstart](#-quickstart)
+- [Benchmark](#-benchmark)
 - [Why SpeakLoop](#-why-speakloop)
 - [Demo](#-demo)
 - [Features](#-features)
 - [How it works](#-how-it-works)
-- [Quickstart](#-quickstart)
 - [Usage examples](#-usage-examples)
 - [MCP surface](#-mcp-surface)
 - [Configuration](#%EF%B8%8F-configuration)
@@ -81,6 +123,11 @@ A voice assistant with a screen is already in many homes. SpeakLoop turns it int
 </a>
 
 <sub>▶ <a href="assets/speakloop-demo.mp4">Watch the narrated demo (MP4, 2:49, 4.9 MB)</a>. GitHub plays it in the browser.</sub>
+
+<img src="assets/demo.gif" width="800" alt="SpeakLoop session in the Alexa+ experience simulator: greeting, a 10-minute plan, a spaced-repetition review, a Repeat Sentence drill with a scored result card, and a progress report, while the right panel lists every MCP message">
+
+<sub>A full session at 4× speed: greet → plan 10 minutes → review missed words → Repeat Sentence → scored card → progress.<br>
+The right-hand panel is the live MCP traffic between the page and the server.</sub>
 
 </div>
 
@@ -118,6 +165,10 @@ says *"The lecture was **move** to the main hall."* SpeakLoop scores it, highlig
 | 🔌 **Swappable planner** | Offline rules (default), Amazon Bedrock Converse with tool use, or any OpenAI-compatible endpoint, with a throttle circuit breaker. |
 
 ## 🧭 How it works
+
+<img src="assets/readme/architecture.svg" width="100%" alt="Architecture: the browser simulator (voice in, voice out, mcp-lite-browser client, MCP Apps host) talks MCP 2025-11-25 over Streamable HTTP to the SpeakLoop MCP server (9 tools, MCP App, Agent Skill, coach, explainable scorer, SQLite memory); a /agent/step planner (rules, Amazon Bedrock, OpenAI-compatible) picks the next tool call. Branch work in development: phoneme scorer, Strands planner with FSRS memory, design-system cards.">
+
+The same flow as Mermaid:
 
 ```mermaid
 flowchart LR
@@ -167,26 +218,6 @@ sequenceDiagram
   *and* a text block, for hosts that ignore structured output.
 - **Tool annotations** (`readOnlyHint`, `idempotentHint`) let a host auto-approve safe calls.
 - **Protocol version is tested.** The handshake negotiates `protocolVersion: "2025-11-25"`, asserted in `tests/test_mcp_http.py`.
-
-## 🚀 Quickstart
-
-**Requirements:** Python 3.11+. Chrome or Edge for voice input (typing works in every browser). No API keys.
-
-```bash
-git clone https://github.com/ducvuathuduc/speakloop && cd speakloop
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-python scripts/seed_demo.py speakloop.db lan   # optional: 6 earlier practice days for learner "lan"
-python -m speakloop.server                     # → http://127.0.0.1:8765
-```
-
-Open **http://127.0.0.1:8765** and click the chips in order (*Hi → Practise 10 min → Yes / next → …*), or press the
-mic and talk. The MCP endpoint is **`http://127.0.0.1:8765/mcp`**.
-
-> [!TIP]
-> `seed_demo.py` writes earlier practice days with **simulated dates** (scored by the real scorer), so streaks,
-> due reviews and the progress chart are visible in a short demo. Skip it to start as a brand-new learner.
 
 ## 🧪 Usage examples
 
@@ -406,7 +437,7 @@ speakloop/
 ├── tests/                  # pytest: unit + Streamable HTTP end to end
 ├── scripts/                # seed_demo.py, demo_capture.py, bedrock_smoke.py
 ├── docs/                   # ARCHITECTURE, AWS, FRICTION_LOG, PRODUCT_FEEDBACK, FEATURE_REQUESTS, img/
-└── assets/                 # logo, GIFs, demo video, social preview
+└── assets/                 # brand kit (brand/), README art (readme/), GIFs, demo video, social preview
 ```
 
 ## 🔗 Related project: mcp-lite-browser
