@@ -176,8 +176,19 @@ def score_phones(
     frame_seconds: float = 0.02,
     test_insertions: bool = True,
     blank: str = "<pad>",
+    extra_variants: dict[int, tuple[str | None, ...]] | None = None,
+    context_pass: bool = True,
+    phone_thresholds: dict[str, float] | None = None,
 ) -> GopResult:
-    """Score each canonical phone against competitors. ``phones`` are model tokens."""
+    """Score each canonical phone against competitors. ``phones`` are model tokens.
+
+    ``extra_variants`` maps a phone index to extra realisations accepted *at that
+    position only* (e.g. weak forms of function words: "to" uː→ə); ``None`` in
+    the tuple accepts deleting the phone ("and" without its d).
+    ``phone_thresholds`` overrides ``threshold`` for particular canonical tokens.
+    """
+    phone_thresholds = phone_thresholds or {}
+    extra_variants = extra_variants or {}
     blank_id = vocab.get(blank, 0)
     id2tok = {i: t for t, i in vocab.items()}
     keep = [i for i, p in enumerate(phones) if p in vocab]
@@ -191,18 +202,14 @@ def score_phones(
     post = np.exp(log_probs)
     special_ids = {vocab[s] for s in SPECIAL if s in vocab}
 
-    seqs: list[list[int]] = [toks]
-    plan: list[tuple[list[int], list[tuple[int | None, int]]]] = []  # (variant seq idx, [(alt tok|None, seq idx)])
+    # Per-position accepted variants and competitors (independent of context).
+    variants_of: list[list[int | None]] = []
+    alts_of: list[list[int | None]] = []
     for j in range(N):
         canon = phones[keep[j]]
+        extra = extra_variants.get(keep[j], ())
         variants = [toks[j]] + [vocab[v] for v in ACCEPTED_VARIANTS.get(canon, ()) if v in vocab]
-        vidx = []
-        for v in variants:
-            if v == toks[j]:
-                vidx.append(0)
-            else:
-                seqs.append(toks[:j] + [v] + toks[j + 1:])
-                vidx.append(len(seqs) - 1)
+        variants += [vocab[v] for v in extra if v is not None and v in vocab and vocab[v] not in variants]
         # competitors: top-k posterior tokens around the aligned span + L1 confusions
         if spans:
             a, b = spans[j]
@@ -211,7 +218,7 @@ def score_phones(
             lo, hi = int(j / N * T), int((j + 1) / N * T) + 1
         mass = post[lo:hi].sum(0)
         order = np.argsort(-mass)
-        alts: list[int] = []
+        alts: list[int | None] = []
         vset = set(variants)
         for t in order:
             t = int(t)
@@ -223,30 +230,58 @@ def score_phones(
         for c in L1_CONFUSIONS.get(canon, ()):
             if c in vocab and vocab[c] not in vset and vocab[c] not in alts:
                 alts.append(vocab[c])
-        aidx: list[tuple[int | None, int]] = []
-        for t in alts:
-            seqs.append(toks[:j] + [t] + toks[j + 1:])
-            aidx.append((t, len(seqs) - 1))
-        seqs.append(toks[:j] + toks[j + 1:])
-        aidx.append((None, len(seqs) - 1))
-        plan.append((vidx, aidx))
+        if None in extra:
+            variants.append(None)        # dropping this phone is acceptable here
+        else:
+            alts.append(None)            # deletion is a competitor
+        variants_of.append(variants)
+        alts_of.append(alts)
+
+    def _evaluate(ctx: list[int | None]):
+        """Score every position with the other positions fixed to ``ctx``."""
+        seqs: list[list[int]] = [[t for t in ctx if t is not None]]
+        plan = []
+        for j in range(N):
+            def seq(v, j=j):
+                return [t for t in ctx[:j] + [v] + ctx[j + 1:] if t is not None]
+            vidx = []
+            for v in variants_of[j]:
+                seqs.append(seq(v)); vidx.append((v, len(seqs) - 1))
+            aidx = []
+            for t in alts_of[j]:
+                seqs.append(seq(t)); aidx.append((t, len(seqs) - 1))
+            plan.append((vidx, aidx))
+        ll = _batch_ll(log_probs, seqs, blank_id)
+        res = []
+        for vidx, aidx in plan:
+            best_v, kv = max(vidx, key=lambda x: ll[x[1]])
+            best_a, ka = max(aidx, key=lambda x: ll[x[1]])
+            res.append((ll[kv], best_v, best_a, ll[ka]))
+        return res
+
+    # Pass 1: canonical context. Pass 2 (context_pass): every other phone set to
+    # its best *accepted* realisation, so a native reduction or flap next door
+    # ("to and" -> "tə ən") does not make its neighbours look wrong.
+    ctx: list[int | None] = list(toks)
+    evals = _evaluate(ctx)
+    if context_pass:
+        ctx2 = [e[1] for e in evals]
+        if ctx2 != ctx:
+            evals = _evaluate(ctx2)
 
     ins_plan: list[tuple[int, int]] = []
+    seqs = [toks]
     if test_insertions and word_final and "ə" in vocab:
         schwa = vocab["ə"]
         for j in range(N):
             if keep[j] in word_final and not is_vowel(phones[keep[j]]):
                 seqs.append(toks[:j + 1] + [schwa] + toks[j + 1:])
                 ins_plan.append((j, len(seqs) - 1))
-
     ll = _batch_ll(log_probs, seqs, blank_id)
     base = ll[0]
 
     out: list[PhoneScore] = [PhoneScore(i, p, None, None, None, False, None, None) for i, p in enumerate(phones)]
-    for j, (vidx, aidx) in enumerate(plan):
-        canon_ll = max(ll[k] for k in vidx)
-        best_alt_tok, best_alt_ll = max(aidx, key=lambda x: ll[x[1]])
-        best_alt_ll = ll[best_alt_ll]
+    for j, (canon_ll, _best_v, best_alt_tok, best_alt_ll) in enumerate(evals):
         if not math.isfinite(canon_ll):
             gop = -50.0
         elif not math.isfinite(best_alt_ll):
@@ -264,7 +299,7 @@ def score_phones(
             a, b = spans[j]
             ps.start = a * frame_seconds
             ps.end = (b + 1) * frame_seconds
-        ps.flagged = gop < threshold
+        ps.flagged = gop < phone_thresholds.get(phones[i], threshold)
         if ps.flagged:
             ps.error_type = "deletion" if best_alt_tok is None else "substitution"
         else:

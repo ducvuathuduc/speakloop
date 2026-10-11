@@ -310,3 +310,31 @@ def test_assess_emissions_shape():
     assert out["overall"]["phones"] == 4 and out["overall"]["phones_flagged"] >= 1
     assert out["l1_findings"][0]["rule_id"] == "VN-ED-DROP"
     assert out["words"][0]["heard_ipa"] == "wɔːk"
+
+
+def test_weak_forms_accept_reduced_function_words():
+    pytest.importorskip("torch")
+    from speakloop.phoneme.g2p import WordPron, weak_form_variants
+    from speakloop.phoneme.gop import score_phones
+
+    prons = [WordPron("to", ["t", "uː"]), WordPron("and", ["æ", "n", "d"]), WordPron("sit", ["s", "ɪ", "t"])]
+    canon = [p for w in prons for p in w.phones]
+    lp = _posteriors(["t", "ə", "ə", "n", "s", "ɪ", "t"])   # "tə ən sit": native weak forms
+    extra = weak_form_variants(prons)
+    assert extra[1] and None in extra[4]                    # uː in "to", d in "and"
+    strict = score_phones(lp, canon, VOCAB, threshold=0.0, test_insertions=False)
+    assert strict.phones[1].flagged and strict.phones[4].flagged
+    weak = score_phones(lp, canon, VOCAB, threshold=0.0, test_insertions=False, extra_variants=extra)
+    assert not any(p.flagged for p in weak.phones)
+
+
+def test_weak_forms_do_not_hide_content_word_errors():
+    pytest.importorskip("torch")
+    from speakloop.phoneme.g2p import WordPron, weak_form_variants
+    from speakloop.phoneme.gop import score_phones
+
+    prons = [WordPron("two", ["t", "uː"])]                  # content word: no weak form
+    lp = _posteriors(["t", "ə"])
+    res = score_phones(lp, ["t", "uː"], VOCAB, threshold=0.0, test_insertions=False,
+                       extra_variants=weak_form_variants(prons))
+    assert res.phones[1].flagged

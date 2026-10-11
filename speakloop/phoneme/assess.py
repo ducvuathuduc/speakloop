@@ -13,7 +13,7 @@ from typing import Any
 
 import numpy as np
 
-from .g2p import WordPron, g2p_words, is_vowel
+from .g2p import WordPron, g2p_words, is_vowel, weak_form_variants
 from .gop import GopResult, score_phones
 from .model import Emissions, get_model, load_audio
 from .rules import Event, apply_rules, load_rules, phone_position
@@ -23,6 +23,18 @@ from .rules import Event, apply_rules, load_rules, phone_position
 DEFAULT_THRESHOLD = float(os.environ.get("SPEAKLOOP_GOP_THRESHOLD", "0.0"))
 DEFAULT_INSERTION_GAIN = float(os.environ.get("SPEAKLOOP_INSERTION_GAIN", "3.0"))
 STRESS_RATIO = 1.35
+
+# Per-phone GOP thresholds, tuned on L2-ARCTIC dev speakers HQTV + PNV only by
+# coordinate ascent on dev F1 around the global default 0.0
+# (benchmarks/eval_l2arctic.py; THV + TLV held out, see benchmarks/RESULTS.md).
+# The wav2vec2 espeak model has a strong prior for the dictionary phone in
+# frequent words ("the" is heard as ð even when a listener hears d), so ð, d,
+# z and ɚ need a stricter (higher) bar; ɪ/iː confusions were mostly false
+# alarms on dev, so ɪ is almost never flagged.
+PHONE_THRESHOLDS: dict[str, float] = {
+    "ð": 6.25, "d": 4.25, "z": 3.5, "l": 3.0, "ɜː": 4.75, "ɚ": 4.75,
+    "ɹ": 0.25, "ʌ": 0.25, "ə": 0.25, "ɪ": -5.5,
+}
 
 
 def _stress_events(wav: np.ndarray | None, prons: list[WordPron], gop: GopResult,
@@ -70,7 +82,10 @@ def assess_emissions(
     insertion_gain: float | None = None,
     rules_path: str | None = None,
     check_stress: bool = True,
+    weak_forms: bool = True,
 ) -> dict[str, Any]:
+    # per-phone thresholds apply unless the caller (or env) pins one global threshold
+    use_phone_thresholds = threshold is None and "SPEAKLOOP_GOP_THRESHOLD" not in os.environ
     threshold = DEFAULT_THRESHOLD if threshold is None else threshold
     insertion_gain = DEFAULT_INSERTION_GAIN if insertion_gain is None else insertion_gain
 
@@ -86,7 +101,9 @@ def assess_emissions(
         word_final.add(len(flat) - 1)
 
     gop = score_phones(em.log_probs, flat, vocab, word_final=word_final,
-                       threshold=threshold, frame_seconds=em.frame_seconds)
+                       threshold=threshold, frame_seconds=em.frame_seconds,
+                       extra_variants=weak_form_variants(prons) if weak_forms else None,
+                       phone_thresholds=PHONE_THRESHOLDS if use_phone_thresholds else None)
 
     phones_out = []
     events: list[Event] = []

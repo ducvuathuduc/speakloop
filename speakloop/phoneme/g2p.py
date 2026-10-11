@@ -56,6 +56,36 @@ ACCEPTED_VARIANTS: dict[str, tuple[str, ...]] = {
     "i": ("iː", "ɪ"),
 }
 
+# Weak (reduced) forms of high-frequency function words. Native speakers say
+# "to" as /tə/, "and" as /ən/, "for" as /fɚ/; per-word espeak and dictionary
+# (ARPAbet) pronunciations give the strong form, so without this the reduced
+# form would be flagged as a mispronunciation. Key: word; value: canonical
+# token -> extra tokens accepted at that position (None = may be dropped).
+WEAK_FORMS: dict[str, dict[str, tuple[str | None, ...]]] = {
+    "to": {"uː": ("ə", "ʊ", "u", "ɪ")},
+    "the": {"ə": ("iː", "ɪ", "i", "ʌ"), "ʌ": ("ə", "iː", "ɪ", "i"), "iː": ("ɪ", "i", "ə")},
+    "a": {"eɪ": ("ə", "ʌ", "ɐ"), "ə": ("eɪ", "ʌ", "ɐ"), "ʌ": ("ə", "eɪ", "ɐ")},
+    "an": {"æ": ("ə", "ʌ", "ɐ", "ɪ")},
+    "of": {"ʌ": ("ə", "ɐ"), "ɑː": ("ə", "ʌ")},
+    "and": {"æ": ("ə", "ɛ", "ɪ", "ɐ"), "d": (None,)},
+    "for": {"ɔː": ("ə", "ɚ", "ɜː", None)},   # /fɚ/, /fɹ/
+}
+
+
+def weak_form_variants(prons: "list[WordPron]") -> dict[int, tuple[str | None, ...]]:
+    """Flat phone index -> extra accepted realisations, for ``score_phones``."""
+    out: dict[int, tuple[str | None, ...]] = {}
+    i = 0
+    for wp in prons:
+        rules = WEAK_FORMS.get(wp.text.lower())
+        if rules:
+            for k, p in enumerate(wp.phones):
+                if p in rules:
+                    out[i + k] = rules[p]
+        i += len(wp.phones)
+    return out
+
+
 VOWELS = {
     "ɑː", "æ", "ʌ", "ɔː", "aʊ", "aɪ", "ɛ", "ɜː", "eɪ", "ɪ", "iː", "oʊ", "ɔɪ",
     "ʊ", "uː", "ə", "ɚ", "ᵻ", "i", "u", "ɐ", "ɑ", "ɔ", "o", "e", "a", "əl",
