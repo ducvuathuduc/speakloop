@@ -6,7 +6,9 @@ time with ``python -m speakloop.phoneme.download``). Nothing is committed to git
 Environment variables
 ---------------------
 SPEAKLOOP_PHONEME_MODEL   HF id or local path (default facebook/wav2vec2-lv-60-espeak-cv-ft)
-SPEAKLOOP_PHONEME_DTYPE   float32 | bfloat16 (default float32)
+SPEAKLOOP_PHONEME_DTYPE   float32 | bfloat16 (default float32). On CPU keep float32 compute:
+                          bf16 compute was 20-50x slower (benchmarks/LATENCY.md); to save
+                          disk/RAM at load, store weights with ``python -m speakloop.phoneme.convert``.
 SPEAKLOOP_PHONEME_THREADS torch intra-op threads (default: torch's choice)
 """
 
